@@ -1,0 +1,20 @@
+{
+  "name": "mcwss-api",
+  "version": "0.1.5-alpha",
+  "description": "a wrapper for the MCWSS API, an undocumented API for Minecraft",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "keywords": [
+    "minecraft",
+    "websocket"
+  ],
+  "author": "TensiveYT",
+  "license": "ISC",
+  "dependencies": {
+    "cli-color": "^2.0.4",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.1"
+  }
+}
