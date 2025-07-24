@@ -1,7 +1,7 @@
 # mcwss-api
-- Im making a wrapper for the Minecraft WSS API, an undocumented API that lets you communicate with Minecraft Bedrock Edition through WebSockets.
+Im making a wrapper for the Minecraft WSS API, an undocumented API that lets you communicate with Minecraft Bedrock Edition through WebSockets.
 
-- Made by [TensiveYT](https://youtube.com/@Hyperflamee8)!
+Made by [TensiveYT](https://youtube.com/@Hyperflamee8)!
 
 ### Contributors
 (none yet)
@@ -9,6 +9,11 @@
 ### Notes
 - if i find anything new, i'll add it to this package ig
 
+# Installation
+To install the package, simply nagivate to your project folder, open the command line there, and run
+```batch
+npm i mcwss-api
+```
 # Example
 ```javascript
 let { APIInstance } = require('mcwss-api')
