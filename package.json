@@ -1,0 +1,28 @@
+{
+  "name": "mcwss-api",
+  "version": "0.2.0-alpha",
+  "description": "Im making a wrapper for the Minecraft WSS API, an undocumented API that lets you communicate with Minecraft Bedrock Edition through WebSockets.",
+  "keywords": [
+    "minecraft",
+    "websocket",
+    "wss",
+    "ws",
+    "server"
+  ],
+  "homepage": "https://github.com/Hyperflame1296/mcwss-api#readme",
+  "bugs": {
+    "url": "https://github.com/Hyperflame1296/mcwss-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hyperflame1296/mcwss-api.git"
+  },
+  "license": "ISC",
+  "author": "TensiveYT",
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "test": "node test"
+  }
+}
