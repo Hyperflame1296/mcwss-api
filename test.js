@@ -11,8 +11,8 @@ api.start(8080, '127.0.0.1', {
 
 try {
     api.wss.on('connection', (ws, req) => {
-        api.subscribe(ws, 'MobInteracted') // listen for PlayerMessage events 
-        api.on(ws, 'MobInteracted', msg => {
+        api.subscribe(ws, 'PlayerMessage') // listen for PlayerMessage events 
+        api.on(ws, 'PlayerMessage', msg => {
             console.log(msg) // logs any PlayerMessage event that goes through
             api.run_command(ws, `say ${msg.body.message}`) // send the message back with /say!
         })

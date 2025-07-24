@@ -11,11 +11,6 @@ jocopa3 (for the event list)
 ### Notes
 - if i find anything new, i'll add it to this package ig
 
-# Installation
-To install the package, simply nagivate to your project folder, open the command line there, and run
-```plaintext
-npm i mcwss-api@latest
-```
 # Example
 ```javascript
 let { APIInstance } = require('mcwss-api')
