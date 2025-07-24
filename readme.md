@@ -40,7 +40,8 @@ try {
 # Methods
 
 ### run_command
-Externally run a minecraft command.
+Execute a command in Minecraft.
+- `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
 ```javascript
 api.run_command(ws, command)
 ```

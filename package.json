@@ -1,6 +1,6 @@
 {
   "name": "mcwss-api",
-  "version": "0.2.5a-alpha",
+  "version": "0.2.5-alpha.rev2",
   "description": "Im making a wrapper for the Minecraft WSS API, an undocumented API that lets you communicate with Minecraft Bedrock Edition through WebSockets.",
   "keywords": [
     "minecraft",
