@@ -26,6 +26,7 @@
     "test": "node test"
   },
   "dependencies": {
+    "@types/ws": "^8.18.1",
     "cli-color": "^2.0.4",
     "uuid": "^11.1.0",
     "ws": "^8.18.3"
