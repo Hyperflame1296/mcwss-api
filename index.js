@@ -1,7 +1,12 @@
 let WebSocket = require('ws');
 let uuid = require('uuid');
 let color = require('cli-color');
-console.log(`[${color.cyanBright('INFO')}] ${color.greenBright('API installed')}!`)
+let tags = {
+    info: `[${color.cyanBright('INFO')}]`,
+    warn: `[${color.yellowBright('WARNING')}]`,
+    error: `[${color.redBright('ERROR')}]`,
+    fatal: `[${color.red('FATAL')}]`,
+}
 // api
 class APIInstance {
     wss;
@@ -9,10 +14,10 @@ class APIInstance {
     // constructor
     constructor() {
         process.on('uncaughtException', err => {
-            console.log(`[${color.red('FATAL')}] ${color.whiteBright('Uncaught Exception')}: ${err.stack}`);
+            console.log(`${tags.fatal} ${color.whiteBright('Uncaught Exception')}: ${err.stack}`);
         });
         process.on('unhandledRejection', reason => {
-            console.log(`[${color.red('FATAL')}] ${color.whiteBright('Unhandled Rejection')}: ${reason}`);
+            console.log(`${tags.fatal} ${color.whiteBright('Unhandled Rejection')}: ${reason}`);
         });
     }
     // methods
@@ -23,12 +28,12 @@ class APIInstance {
                 host: host ?? '127.0.0.1'
             });
             this.options = options ?? {};
-            console.log(`[${color.cyanBright('INFO')}] ${color.greenBright('Server started')}; type \'${color.whiteBright(`/wsserver ${host ?? '127.0.0.1'}:${port}`)}\' on Minecraft to begin!`)
+            console.log(`${tags.info} ${color.greenBright('Server started')}; type \'${color.whiteBright(`/wsserver ${host ?? '127.0.0.1'}:${port}`)}\' on Minecraft to begin!`)
             let decoder = new TextDecoder();
             this.wss.on('connection', (ws, req) => {
                 req.socket.setKeepAlive(true, 30000);
                 ws.isAlive = true;
-                console.log(`[${color.cyanBright('INFO')}] ${color.blueBright('A client has connected')}!`)
+                console.log(`${tags.info} ${color.blueBright('A client has connected')}!`)
                 
                 ws.on('message', raw => {
                     try {
@@ -38,32 +43,32 @@ class APIInstance {
                                 break;
                             case 'commandResponse':
                                 if (msg.body.statusCode < 0 && this.options.logCmdErrors) {
-                                    console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(msg.body.statusMessage)} | ${color.yellowBright(msg.body.statusCode)}`)
+                                    console.log(`${tags.error} ${color.whiteBright(msg.body.statusMessage)} | ${color.yellowBright(msg.body.statusCode)}`)
                                 } else if (msg.body.statusCode >= 0 && this.options.logCmdOutput) {
-                                    console.log(`[${color.cyanBright('INFO')}] ${color.whiteBright(msg.body.statusMessage)}`)
+                                    console.log(`${tags.info} ${color.whiteBright(msg.body.statusMessage)}`)
                                 }
                                 break;
                             case 'event':
                                 break;
                             case 'error': 
-                                this.options.logMsgErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright('An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
+                                this.options.logMsgErrors ? console.log(`${tags.error} ${color.whiteBright('An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
                                 break;
                             default:
                                 this.options.logOther ? console.log(msg) : void 0;
                                 break;
                         }
                     } catch (err) {
-                        this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`) : void 0;
+                        this.options.logSeriousErrors ? console.log(`${tags.error} ${color.whiteBright(err)}`) : void 0;
                     }
                 })
                 ws.on('pong', () => {
                     ws.isAlive = true; // Mark alive when pong is received
                 });
                 ws.on('error', err => {
-                    console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`)
+                    console.log(`${tags.error} ${color.whiteBright(err)}`)
                 });
                 ws.on('close', () => {
-                    console.log(`[${color.cyanBright('INFO')}] ${color.blueBright('A client has disconnected')}.`)
+                    console.log(`${tags.info} ${color.blueBright('A client has disconnected')}.`)
                 });
             });
             let interval = setInterval(() => {
@@ -75,21 +80,21 @@ class APIInstance {
                 });
             }, 30000);
             this.wss.on('error', err => {
-                console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(`SERVER ERROR - ${err}`)}`)
+                console.log(`${tags.error} ${color.whiteBright(`SERVER ERROR - ${err}`)}`)
             });
             this.wss.on('close', () => {
-                console.log(`[${color.cyanBright('INFO')}] ${color.blueBright('The server has closed')}.`)
+                console.log(`${tags.info} ${color.blueBright('The server has closed')}.`)
                 clearInterval(interval)
             });
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.start - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.start - ${color.whiteBright(err)}`) : void 0;
         }
     }
     stop() {
         try {
-            typeof this.wss !== 'undefined' ? this.wss.close() : console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(`Can\'t stop the server, as it's not started yet.`)}`);
+            typeof this.wss !== 'undefined' ? this.wss.close() : console.log(`${tags.error} ${color.whiteBright(`Can\'t stop the server, as it's not started yet.`)}`);
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.stop - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.stop - ${color.whiteBright(err)}`) : void 0;
         }
     }
     subscribe(ws, event_type) {
@@ -101,13 +106,12 @@ class APIInstance {
                     messageType: 'commandRequest',
                     messagePurpose: 'subscribe',
                 },
-                
                 body: {
                     eventName: event_type
                 }
             }))
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
     on(ws, event_type, cb) {
@@ -120,7 +124,7 @@ class APIInstance {
                 } else return;
             })
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.on - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.on - ${color.whiteBright(err)}`) : void 0;
         }
     }
     on_purpose(ws, purpose, cb) {
@@ -133,7 +137,7 @@ class APIInstance {
                 } else return;
             })
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
     unsubscribe(ws, event_type) {
@@ -150,21 +154,21 @@ class APIInstance {
                 }
             }))
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.unsubscribe - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.unsubscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
     send(ws, json) {
         try {
             ws.send(JSON.stringify(json))
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
         }
     }
     send_raw(ws, raw) {
         try {
             ws.send(raw)
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.send_raw - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.send_raw - ${color.whiteBright(err)}`) : void 0;
         }
     }
     run_command(ws, command) {
@@ -210,16 +214,36 @@ class APIInstance {
                     }
                 }
             } else {
-                console.log(`[${color.redBright('ERROR')}] - APIInstance.run_command - Command input must be either an Array or String.`)
+                console.log(`${tags.error} - APIInstance.run_command - Command input must be either an Array or String.`)
                 return ''
             }
             return ret
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.run_command - ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.run_command - ${color.whiteBright(err)}`) : void 0;
             return ''
         }
     }
 }
+// other stuff
+class Vector3 {
+    constructor({ x, y, z }) {
+        try {
+            if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+                throw new Error(`One or more parameters aren\'t a number.`);
+            } else {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+        } catch (err) {
+            this.options.logSeriousErrors ? console.log(`${tags.error} - Vector3.constructor - ${color.whiteBright(err)}`) : void 0
+        }
+    }
+    valueOf() {
+        return { x: this.x, y: this.y, z: this.z }
+    }
+}
 module.exports = {
-    APIInstance
+    APIInstance,
+    Vector3
 }

@@ -8,10 +8,11 @@ api.start(8080, '127.0.0.1', {
     logSeriousErrors: true, // log serious errors (they'd likely be JSON parse errors)
     logOther: false // log other stuff
 })
+
 try {
     api.wss.on('connection', (ws, req) => {
-        api.subscribe(ws, 'PlayerMessage') // listen for PlayerMessage events 
-        api.on(ws, 'PlayerMessage', msg => {
+        api.subscribe(ws, 'MobInteracted') // listen for PlayerMessage events 
+        api.on(ws, 'MobInteracted', msg => {
             console.log(msg) // logs any PlayerMessage event that goes through
             api.run_command(ws, `say ${msg.body.message}`) // send the message back with /say!
         })

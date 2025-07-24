@@ -1,52 +1,394 @@
 
-import type { WebSocketServer } from "ws";
-import type { WebSocket } from "ws";
 declare module 'mcwss-api' {
+    import type { WebSocketServer, WebSocket } from "ws";
     type EventType = 
-        'PlayerMessage' |
-        'PlayerTravelled' |
-        'PlayerTransform' |
-        'PlayerTeleport' |
-        'PlayerDied' |
-        'PlayerBounced' |
-        'EntitySpawned' |
-        'ItemUsed' |
-        'ItemAcquired' |
-        'ItemSmelted' |
-        'ItemCrafted' |
-        'BlockPlaced' |
-        'BlockBroken' |
-        'MobKilled' |
-        'MobInteracted';
+        | 'PlayerMessage'
+        | 'PlayerTravelled'
+        | 'PlayerTransform'
+        | 'PlayerTeleported'
+        | 'PlayerDied'
+        | 'PlayerBounced'
+        | 'EntitySpawned'
+        | 'ItemUsed'
+        | 'ItemAcquired'
+        | 'ItemDropped'
+        | 'ItemSmelted'
+        | 'ItemCrafted'
+        | 'BlockPlaced'
+        | 'BlockBroken'
+        | 'MobKilled'
+        | 'MobInteracted'
     type MessagePurpose =
-        'commandRequest' |
-        'commandResponse' |
-        'event' |
-        'error';
-    interface WrapperOptions {
-        logCmdErrors: boolean,
-        logCmdOutput: boolean,
-        logMsgErrors: boolean,
-        logSeriousErrors: boolean,
+        | 'commandRequest'
+        | 'commandResponse'
+        | 'event'
+        | 'error'
+        | 'subscribe'
+        | 'unsubscribe'
+
+    interface APIOptions {
+        logCmdErrors: boolean
+        logCmdOutput: boolean
+        logMsgErrors: boolean
+        logSeriousErrors: boolean
         logOther: boolean
     }
+    interface EventMap {
+        'PlayerMessage': PlayerMessageEvent
+        'PlayerTravelled': PlayerTravelledEvent
+        'PlayerTransform': PlayerTransformEvent
+        'PlayerTeleported': PlayerTeleportedEvent
+        'PlayerDied': PlayerDiedEvent
+        'PlayerBounced': PlayerBouncedEvent
+        'EntitySpawned': EntitySpawnedEvent
+        'ItemUsed': ItemUsedEvent
+        'ItemAcquired': ItemAcquiredEvent
+        'ItemDropped': ItemDroppedEvent
+        'ItemSmelted': ItemSmeltedEvent
+        'ItemCrafted': ItemCraftedEvent
+        'BlockPlaced': BlockPlacedEvent
+        'BlockBroken': BlockBrokenEvent
+        'MobKilled': MobKilledEvent
+        'MobInteracted': MobInteractedEvent
+    }
+    interface Enchantment {
+        level: number
+        name: string
+        type: number
+    }
+    interface Block {
+        aux: number
+        id: string
+        namespace: string
+    }
+    interface Item {
+        aux: number
+        id: string
+        namespace: string
+    }
+    interface ItemAdvanced {
+        aux: number
+        enchantments: Enchantment[]
+        freeStackSize: number
+        id: string
+        maxStackSize: number
+        namespace: string
+        stackSize: 1
+    }
+    interface EntitySingle {
+        type: number
+    }
+    interface Entity {
+        color: number
+        id?: number
+        type: number
+        variant: number
+    }
+    interface EntityAdvanced {
+        color: number
+        dimension: number
+        id: number
+        position: Vector3
+        type: number
+        variant: number
+        yRot: number
+    }
+    interface Player extends EntityAdvanced {
+        color: string
+        dimension: number
+        id: number
+        name: string
+        position: Vector3
+        type: string
+        variant: number
+        yRot: number
+    }
+    interface Event {
+        body: object
+        header: object
+    }
+    interface PlayerMessageEvent extends Event {
+        body: {
+            message: string
+            receiver: string
+            sender: string
+            type: string
+        }
+        header: {
+            eventName: 'PlayerMessage'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface PlayerTravelledEvent extends Event {
+        body: {
+            isUnderwater: boolean
+            metersTravelled: number
+            newBiome: number
+            player: Player
+            travelMethod: number
+        }
+        header: {
+            eventName: 'PlayerTravelled'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface PlayerTransformEvent extends Event {
+        body: {
+            player: Player
+        }
+        header: {
+            eventName: 'PlayerTransform'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface PlayerTeleportedEvent extends Event {
+        body: {
+            cause: number,
+            itemType: number
+            metersTravelled: number
+            player: Player
+        }
+        header: {
+            eventName: 'PlayerTeleported'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface PlayerDiedEvent extends Event {
+        body: {
+            cause: number
+            inRaid: boolean
+            killer: Entity
+            player: Player
+        }
+        header: {
+            eventName: 'PlayerDied'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface PlayerBouncedEvent extends Event {
+        body: {
+            block: Block
+            bounceHeight: number
+            player: Player
+        }
+        header: {
+            eventName: 'PlayerBounced'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface EntitySpawnedEvent extends Event {
+        body: {
+            mob: EntitySingle
+            player: Player
+            spawnType: number
+        }
+        header: {
+            eventName: 'EntitySpawned'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface ItemUsedEvent extends Event {
+        body: {
+            count: number
+            item: Item
+            player: Player
+            useMethod: number
+        }
+        header: {
+            eventName: 'ItemUsed'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface ItemAcquiredEvent extends Event {
+        body: {
+            acquisitionMethodId: number
+            count: number
+            item: Item
+            player: Player
+        }
+        header: {
+            eventName: 'ItemAcquired'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface ItemDroppedEvent extends Event {
+        body: {
+            count: number
+            item: Item
+            player: Player
+        }
+        header: {
+            eventName: 'ItemDropped'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface ItemSmeltedEvent extends Event {
+        body: {
+            fuelSource: Item
+            item: Item
+            player: Player
+        }
+        header: {
+            eventName: 'ItemSmelted'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface ItemCraftedEvent extends Event {
+        body: {
+            count: number
+            craftedAutomatically: boolean
+            endingTabId: number
+            hasCraftableFilterOn: boolean
+            item: ItemAdvanced
+            numberOfTabsChanged: number
+            player: Player
+            recipeBookShown: boolean
+            startingTabId: number
+            usedCraftingTable: boolean
+            usedSearchBar: boolean
+        }
+        header: {
+            eventName: 'ItemCrafted'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface BlockPlacedEvent extends Event {
+        body: {
+            block: Block
+            count: number
+            placedUnderWater: boolean
+            placementMethod: number
+            player: Player
+            tool: ItemAdvanced
+        }
+        header: {
+            eventName: 'BlockPlaced'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface BlockBrokenEvent extends Event {
+        body: {
+            block: Block
+            count: number
+            destructionMethod: number
+            player: Player
+            tool: ItemAdvanced
+            variant: number
+        }
+        header: {
+            eventName: 'BlockBroken'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface MobKilledEvent extends Event {
+        body: {
+            armorBody: ItemAdvanced
+            armorFeet: ItemAdvanced
+            armorHead: ItemAdvanced
+            armorLegs: ItemAdvanced
+            armorTorso: ItemAdvanced
+            isMonster: boolean
+            killMethodType: number
+            player: Player
+            playerIsHiddenFrom: boolean
+            victim: EntityAdvanced
+            weapon: ItemAdvanced
+        }
+        header: {
+            eventName: 'MobKilled'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface MobInteractedEvent extends Event {
+        body: {
+            interactionType: number
+            mob: Entity
+            player: Player
+            }
+        header: {
+            eventName: 'MobInteracted'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
     class APIInstance {
-        wss: WebSocketServer | undefined;
-        options: WrapperOptions;
-        start(port: number, host: string, options: WrapperOptions): void;
-        stop(): void;
-        subscribe(ws: WebSocket, event_type: EventType): void;
-        unsubscribe(ws: WebSocket, event_type: EventType): void;
-        on(ws: WebSocket, event_type: EventType, cb: (msg: object) => void): void;
-        on_purpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): void;
-        run_command(ws: WebSocket, command: string | string[]): string | string[];
-        send(ws: WebSocket, json: object): void;
-        send_raw(ws: WebSocket, raw: string | ArrayBufferLike): void;
+        /** The WebSocket server, if initialized. */
+        wss: WebSocketServer | undefined
+        /** The options for the API. */
+        options: APIOptions;
+        /** Start the WebSocket server. */
+        start(port: number, host: string, options: APIOptions): void
+        /** Stop the WebSocket server. */
+        stop(): void
+        /** Subscribe to an event, to listen for it. */
+        subscribe(ws: WebSocket, event_type: EventType): void
+        /** Unsubscribe to an event, to stop listening for it. */
+        unsubscribe(ws: WebSocket, event_type: EventType): void
+        /** Listen for a specified event type. */
+        on<K extends keyof EventMap>(ws: WebSocket, event_type: K, cb: (msg: EventMap[K]) => void): void
+        /** Listen for a specified event purpose. */
+        on_purpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): void
+        /** Externally run a minecraft command. */
+        run_command(ws: WebSocket, command: string | string[]): string | string[]
+        /** Send JSON data to a client. */
+        send(ws: WebSocket, json: object): void
+        /** Send raw string/buffer data to a client. */
+        send_raw(ws: WebSocket, raw: string | ArrayBufferLike): void
+    }
+    class Vector3 {
+        constructor(coords: { x: number, y: number, z: number })
+        x: number
+        y: number
+        z: number
     }
     export {
+        // interfaces & stuff
+        EntitySingle,
+        Entity,
+        EntityAdvanced,
+        Item,
+        ItemAdvanced,
+        Enchantment,
+        Block,
+        Player,
         EventType,
+        EventMap,
         MessagePurpose,
-        WrapperOptions,
-        APIInstance
+        // events
+        PlayerMessageEvent,
+        PlayerTravelledEvent,
+        PlayerTransformEvent,
+        PlayerTeleportedEvent,
+        PlayerDiedEvent,
+        PlayerBouncedEvent,
+        EntitySpawnedEvent,
+        ItemUsedEvent,
+        ItemAcquiredEvent,
+        ItemDroppedEvent,
+        ItemSmeltedEvent,
+        ItemCraftedEvent,
+        BlockPlacedEvent,
+        BlockBrokenEvent,
+        MobKilledEvent,
+        MobInteractedEvent,
+        // classes
+        APIOptions,
+        APIInstance,
+        Vector3
     }
 }

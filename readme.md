@@ -45,20 +45,20 @@ try {
 # Methods
 
 ### run_command
-Runs a minecraft command.
+Externally run a minecraft command.
 ```javascript
 api.run_command(ws, command)
 ```
 
 ### start
-Starts the server. 
+Start the server. 
 - This should work with any host that you own, or just localhost.
 ```javascript
 api.start(port, host, opts)
 ```
 
 ### stop
-Stops the server.
+Stop the server.
 ```javascript
 api.stop()
 ```
@@ -92,13 +92,13 @@ api.on_purpose(ws, purpose, callback)
 ```
 
 ### send
-Sends JSON data to a client.
+Send JSON data to a client.
 ```javascript
 api.send(ws, json)
 ```
 
 ### send_raw
-Sends raw buffer/string data to a client.
+Send raw buffer/string data to a client.
 ```javascript
 api.send_raw(ws, raw)
 ```
@@ -123,9 +123,9 @@ Fires every time a message gets sent in general. Not just players.
 This fires whenever the player moves around.
 
 ### PlayerTransform
-As far as I know, exact same thing as PlayerTravelled, not sure what the difference is...
+This is the exact same thing as PlayerTravelled, except with no information about how & where the player moved.
 
-### PlayerTeleport
+### PlayerTeleported
 This fires whenever the player teleports. (via /tp or the like)
 
 ### PlayerDied
@@ -135,7 +135,7 @@ This fires whenever the player dies.
 This fires whenever the player bounces on a slime block, bed, or any other bouncy block.
 
 ### EntitySpawned
-This fires whenever you spawn something with a spawn egg.
+This fires whenever you spawn something, via spawn egg or command.
 
 ### ItemUsed
 This fires whenever you use an item.
