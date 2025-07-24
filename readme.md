@@ -11,8 +11,8 @@ Made by [TensiveYT](https://youtube.com/@Hyperflamee8)!
 
 # Installation
 To install the package, simply nagivate to your project folder, open the command line there, and run
-```batch
-npm i mcwss-api
+```plaintext
+npm i mcwss-api@latest
 ```
 # Example
 ```javascript
