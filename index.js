@@ -211,10 +211,12 @@ class APIInstance {
                 }
             } else {
                 console.log(`[${color.redBright('ERROR')}] - APIInstance.run_command - Command input must be either an Array or String.`)
+                return ''
             }
             return ret
         } catch (err) {
             this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.run_command - ${color.whiteBright(err)}`) : void 0;
+            return ''
         }
     }
 }

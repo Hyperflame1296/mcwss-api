@@ -35,7 +35,7 @@ declare class APIInstance {
     unsubscribe(ws: WebSocket, event_type: EventType): void;
     on(ws: WebSocket, event_type: EventType, cb: (msg: object) => void): void;
     on_purpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): void;
-    run_command(ws: WebSocket, command: string): void;
+    run_command(ws: WebSocket, command: string): string | Array;
     send(ws: WebSocket, json: object): void;
     send_raw(ws: WebSocket, raw: string | ArrayBufferLike): void;
 }
