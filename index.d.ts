@@ -10,6 +10,8 @@ declare module 'mcwss-api' {
         | 'PlayerBounced'
         | 'EntitySpawned'
         | 'ItemUsed'
+        | 'ItemInteracted'
+        | 'ItemEquipped'
         | 'ItemAcquired'
         | 'ItemDropped'
         | 'ItemSmelted'
@@ -35,6 +37,8 @@ declare module 'mcwss-api' {
         'PlayerBounced': PlayerBouncedEvent
         'EntitySpawned': EntitySpawnedEvent
         'ItemUsed': ItemUsedEvent
+        'ItemInteracted': ItemInteractedEvent
+        'ItemEquipped': ItemEquippedEvent
         'ItemAcquired': ItemAcquiredEvent
         'ItemDropped': ItemDroppedEvent
         'ItemSmelted': ItemSmeltedEvent
@@ -215,6 +219,32 @@ declare module 'mcwss-api' {
             version: number
         }
     }
+    interface ItemInteractedEvent extends Event {
+        body: {
+            count: number
+            item: ItemAdvanced
+            method: number
+            player: Player
+            slot: number
+        }
+        header: {
+            eventName: 'ItemInteracted'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
+    interface ItemEquippedEvent extends Event {
+        body: {
+            item: ItemAdvanced
+            player: Player
+            slot: number
+        }
+        header: {
+            eventName: 'ItemEquipped'
+            messagePurpose: 'event'
+            version: number
+        }
+    }
     interface ItemAcquiredEvent extends Event {
         body: {
             acquisitionMethodId: number
@@ -243,7 +273,7 @@ declare module 'mcwss-api' {
     interface ItemSmeltedEvent extends Event {
         body: {
             fuelSource: Item
-            item: Item
+            item: ItemAdvanced
             player: Player
         }
         header: {

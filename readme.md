@@ -6,7 +6,7 @@ Found a bug? [Let me know](https://github.com/Hyperflame1296/mcwss-api/issues)!
 [TensiveYT](https://youtube.com/@Hyperflamee8) (author)
 
 ### Credits
-jocopa3 (for the event list)
+jocopa3 (for the initial event list)
 
 ### Notes
 - if i find anything new, i'll add it to this package ig
@@ -137,7 +137,15 @@ This fires whenever the player bounces on a slime block, bed, or any other bounc
 This fires whenever you spawn something, via spawn egg or command.
 
 ### ItemUsed
-This fires whenever you use an item.
+This fires whenever you finish using an item.
+
+### ItemInteracted
+This fires whenever either right-click with an item, place it's block, or begin/finish using that item.
+
+### ItemEquipped
+This fires whenever you equip an item.
+- Unless the item being equipped is a Shield, putting the item into the equip slot through the inventory will not work.
+- You need to use the right-click equip feature.
 
 ### ItemAcquired
 This fires whenever you pick up an item.

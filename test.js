@@ -13,8 +13,8 @@ api.start(8080, '127.0.0.1', {
 
 try {
     api.wss.on('connection', (ws, req) => {
-        api.subscribe(ws, 'PlayerMessage') // listen for PlayerMessage events 
-        api.on(ws, 'PlayerMessage', msg => {
+        api.subscribe(ws, 'TargetBlockHit') // listen for PlayerMessage events 
+        api.on(ws, 'TargetBlockHit', msg => {
             if (msg.body.type !== 'say') { // to prevent an infinite loop
                 console.log(msg) // logs any PlayerMessage event that goes through
                 api.run_command(ws, `say ${msg.body.message}`) // send the message back with /say!
