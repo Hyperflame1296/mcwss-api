@@ -27,6 +27,8 @@ try {
         api.subscribe(ws, 'PlayerMessage') // listen for PlayerMessage events 
         api.on(ws, 'PlayerMessage', msg => {
             console.log(msg) // logs any PlayerMessage event that goes through
+            
+            api.run_command(ws, `say ${msg.body.message}`) // send the message back with /say!
         })
     });
 } catch (err) {
@@ -36,10 +38,10 @@ try {
 
 # Methods
 
-### runCommand
+### run_command
 - Runs a minecraft command.
 ```javascript
-api.runCommand(ws, command)
+api.run_command(ws, command)
 ```
 
 ### start
@@ -66,7 +68,33 @@ api.subscribe(ws, event_type)
 - Unsubscribe to an event type, to stop listening for it.
 - Available events are in the Events section.
 ```javascript
-api.unsubscribe(ws, eventType)
+api.unsubscribe(ws, event_type)
+```
+
+### on
+- Run a callback every time a message of a specified event type goes through.
+- Available events are in the Events section.
+- Make sure to run `api.subscribe(ws, event_type)` beforehand, otherwise this will not work.
+```javascript
+api.on(ws, event_type, callback)
+```
+
+### on_purpose
+- Run a callback every time a message of a specified purpose goes through.
+```javascript
+api.on_purpose(ws, purpose, callback)
+```
+
+### send
+- Sends JSON data to a client.
+```javascript
+api.send(ws, json)
+```
+
+### send_raw
+- Sends raw buffer/string data to a client.
+```javascript
+api.send_raw(ws, raw)
 ```
 
 # Properties
@@ -78,7 +106,7 @@ api.unsubscribe(ws, eventType)
 
 # Events
 - These are all of the events that worked when I tested them.
-- you can figure out the JSON, i'm too lazy to write that lol
+- you can figure out the JSON that these return, i'm too lazy to write that lol
 - Most of these only work for whatever client is connected to the wss (the host in most cases), so maybe test it first before you get too excited!
 
 ### PlayerMessage
@@ -126,3 +154,13 @@ api.unsubscribe(ws, eventType)
 
 ### MobInteracted
 - This fires whenever you interact with a mob. (unless it has no interact function)
+
+# Purposes
+- These are all of the values that `messagePurpose` can have (or at least all of the ones that i've found).
+
+```plaintext
+commandRequest
+commandResponse
+event
+error
+```

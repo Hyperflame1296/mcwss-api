@@ -24,5 +24,10 @@
   "types": "./index.d.ts",
   "scripts": {
     "test": "node test"
+  },
+  "dependencies": {
+    "cli-color": "^2.0.4",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.3"
   }
 }

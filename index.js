@@ -2,10 +2,6 @@ let WebSocket = require('ws');
 let uuid = require('uuid');
 let color = require('cli-color');
 console.log(`[${color.cyanBright('INFO')}] ${color.greenBright('API installed')}!`)
-// private tools
-function async_pause(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 // api
 class APIInstance {
     wss;
@@ -20,13 +16,13 @@ class APIInstance {
         });
     }
     // methods
-    start(port, host, options={}) {
+    start(port, host, options) {
         try {
             this.wss = new WebSocket.Server({
                 port: port,
                 host: host ?? '127.0.0.1'
             });
-            this.options = options;
+            this.options = options ?? {};
             console.log(`[${color.cyanBright('INFO')}] ${color.greenBright('Server started')}; type \'${color.whiteBright(`/wsserver ${host ?? '127.0.0.1'}:${port}`)}\' on Minecraft to begin!`)
             let decoder = new TextDecoder();
             this.wss.on('connection', (ws, req) => {
@@ -86,14 +82,14 @@ class APIInstance {
                 clearInterval(interval)
             });
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.start - ${color.whiteBright(err)}`) : void 0;
         }
     }
     stop() {
         try {
             typeof this.wss !== 'undefined' ? this.wss.close() : console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(`Can\'t stop the server, as it's not started yet.`)}`);
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.stop - ${color.whiteBright(err)}`) : void 0;
         }
     }
     subscribe(ws, event_type) {
@@ -111,7 +107,7 @@ class APIInstance {
                 }
             }))
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
     on(ws, event_type, cb) {
@@ -124,7 +120,7 @@ class APIInstance {
                 } else return;
             })
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.on - ${color.whiteBright(err)}`) : void 0;
         }
     }
     on_purpose(ws, purpose, cb) {
@@ -137,7 +133,7 @@ class APIInstance {
                 } else return;
             })
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
     unsubscribe(ws, event_type) {
@@ -154,18 +150,34 @@ class APIInstance {
                 }
             }))
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.unsubscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    async run_command(ws, command) {
+    send(ws, json) {
+        try {
+            ws.send(JSON.stringify(json))
+        } catch (err) {
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
+        }
+    }
+    send_raw(ws, raw) {
+        try {
+            ws.send(raw)
+        } catch (err) {
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.send_raw - ${color.whiteBright(err)}`) : void 0;
+        }
+    }
+    run_command(ws, command) {
+        let ret;
         try {
             if (typeof command === 'string') {
+                ret = uuid.v4()
                 ws.send(JSON.stringify({
                     header: {
                         version: 1,
                         requestId: uuid.v4(),
                         messageType: 'commandRequest',
-                        messagePurpose: 'commandRequest',
+                        messagePurpose: 'commandRequest'
                     },
                     body: {
                         commandLine: command,
@@ -173,37 +185,36 @@ class APIInstance {
                             type: 'player'
                         }
                     }
-                }));
-            } else if (typeof command === 'object') {
-                if (command instanceof Array) {
-                    for (let i = 0; i < command.length; i++) {
-                        i !== 0 && i % 100 === 0 ? await async_pause(50) : void 0;
-                        let cmd = command[i];
-                        if (typeof cmd !== 'undefined') {
-                            ws.send(JSON.stringify({
-                                header: {
-                                    version: 1,
-                                    requestId: uuid.v4(),
-                                    messageType: 'commandRequest',
-                                    messagePurpose: 'commandRequest',
-                                },
-                                body: {
-                                    commandLine: cmd,
-                                    origin: {
-                                        type: 'player'
-                                    }
+                }))
+                return ret
+            } else if (command instanceof Array) {
+                ret = []
+                for (let cmd of command) {
+                    if (typeof cmd !== 'undefined') {
+                        let id = uuid.v4()
+                        ws.send(JSON.stringify({
+                            header: {
+                                version: 1,
+                                requestId: id,
+                                messageType: 'commandRequest',
+                                messagePurpose: 'commandRequest',
+                            },
+                            body: {
+                                commandLine: cmd,
+                                origin: {
+                                    type: 'player'
                                 }
-                            }));
-                        }
+                            }
+                        }))
+                        ret.push(id)
                     }
-                } else {
-                    console.log(`[${color.redBright('ERROR')}] runCommand - Command input must be either an Array or String.`)
                 }
             } else {
-                console.log(`[${color.redBright('ERROR')}] runCommand - Command input must be either an Array or String.`)
+                console.log(`[${color.redBright('ERROR')}] - APIInstance.run_command - Command input must be either an Array or String.`)
             }
+            return ret
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] ${color.whiteBright(err)}`) : void 0;
+            this.options.logSeriousErrors ? console.log(`[${color.redBright('ERROR')}] - APIInstance.run_command - ${color.whiteBright(err)}`) : void 0;
         }
     }
 }
