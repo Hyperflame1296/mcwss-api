@@ -34,23 +34,22 @@ class APIInstance {
                             case 'commandRequest':
                                 break;
                             case 'commandResponse':
-                                if (msg.body.statusCode < 0 && this.options.logCmdErrors) {
+                                if (msg.body.statusCode < 0 && this.options.log_command_errors) {
                                     console.log(`${tags.error} ${color.whiteBright(msg.body.statusMessage)} | ${color.yellowBright(msg.body.statusCode)}`)
-                                } else if (msg.body.statusCode >= 0 && this.options.logCmdOutput) {
+                                } else if (msg.body.statusCode >= 0 && this.options.log_command_output) {
                                     console.log(`${tags.info} ${color.whiteBright(msg.body.statusMessage)}`)
                                 }
                                 break;
                             case 'event':
                                 break;
                             case 'error': 
-                                this.options.logMsgErrors ? console.log(`${tags.error} ${color.whiteBright('An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
+                                this.options.log_message_errors ? console.log(`${tags.error} ${color.whiteBright('An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
                                 break;
                             default:
-                                this.options.logOther ? console.log(msg) : void 0;
                                 break;
                         }
                     } catch (err) {
-                        this.options.logSeriousErrors ? console.log(`${tags.error} ${color.whiteBright(err)}`) : void 0;
+                        this.options.log_internal_errors ? console.log(`${tags.error} ${color.whiteBright(err)}`) : void 0;
                     }
                 })
                 ws.on('pong', () => {
@@ -79,21 +78,21 @@ class APIInstance {
                 clearInterval(interval)
             });
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.start - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.start - ${color.whiteBright(err)}`) : void 0;
         }
     }
     stop() {
         try {
             typeof this.wss !== 'undefined' ? this.wss.close() : console.log(`${tags.error} ${color.whiteBright(`Can\'t stop the server, as it's not started yet.`)}`);
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.stop - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.stop - ${color.whiteBright(err)}`) : void 0;
         }
     }
     subscribe(ws, event_type) {
         try {
             ws.send(JSON.stringify({
                 header: {
-                    version: 1,
+                    version: this.options.command_version,
                     requestId: uuid.v4(),
                     messageType: 'commandRequest',
                     messagePurpose: 'subscribe',
@@ -103,7 +102,7 @@ class APIInstance {
                 }
             }))
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
     on(ws, event_type, cb) {
@@ -116,7 +115,7 @@ class APIInstance {
                 } else return;
             })
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.on - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.on - ${color.whiteBright(err)}`) : void 0;
         }
     }
     on_purpose(ws, purpose, cb) {
@@ -129,14 +128,14 @@ class APIInstance {
                 } else return;
             })
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
     unsubscribe(ws, event_type) {
         try {
             ws.send(JSON.stringify({
                 header: {
-                    version: 1,
+                    version: this.options.command_version,
                     requestId: uuid.v4(),
                     messageType: 'commandRequest',
                     messagePurpose: 'unsubscribe',
@@ -146,21 +145,21 @@ class APIInstance {
                 }
             }))
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.unsubscribe - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.unsubscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
     send(ws, json) {
         try {
             ws.send(JSON.stringify(json))
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
         }
     }
     send_raw(ws, raw) {
         try {
             ws.send(raw)
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.send_raw - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.send_raw - ${color.whiteBright(err)}`) : void 0;
         }
     }
     run_command(ws, command) {
@@ -170,7 +169,7 @@ class APIInstance {
                 ret = uuid.v4()
                 ws.send(JSON.stringify({
                     header: {
-                        version: 1,
+                        version: this.options.command_version,
                         requestId: uuid.v4(),
                         messageType: 'commandRequest',
                         messagePurpose: 'commandRequest'
@@ -190,7 +189,7 @@ class APIInstance {
                         let id = uuid.v4()
                         ws.send(JSON.stringify({
                             header: {
-                                version: 1,
+                                version: this.options.command_version,
                                 requestId: id,
                                 messageType: 'commandRequest',
                                 messagePurpose: 'commandRequest',
@@ -211,7 +210,7 @@ class APIInstance {
             }
             return ret
         } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - APIInstance.run_command - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.run_command - ${color.whiteBright(err)}`) : void 0;
             return ''
         }
     }

@@ -26,13 +26,6 @@ declare module 'mcwss-api' {
         | 'subscribe'
         | 'unsubscribe'
 
-    interface APIOptions {
-        logCmdErrors: boolean
-        logCmdOutput: boolean
-        logMsgErrors: boolean
-        logSeriousErrors: boolean
-        logOther: boolean
-    }
     interface EventMap {
         'PlayerMessage': PlayerMessageEvent
         'PlayerTravelled': PlayerTravelledEvent
@@ -341,6 +334,34 @@ declare module 'mcwss-api' {
             version: number
         }
     }
+    interface APIOptions {
+        /** 
+            * Whether to log command syntax errors or not.
+            * - Default is `true`.
+        */
+        log_command_errors: boolean
+        /** 
+            * Whether to log command responses or not.
+            * - Default is `false`.
+        */
+        log_command_output: boolean
+        /** 
+            * Whether to log message error reponses or not.
+            * - Default is `false`.
+        */
+        log_message_errors: boolean
+        /** 
+            * Whether to log command internal errors with the package or not.
+            * - Default is `true`.
+        */
+        log_internal_errors: boolean
+        /** 
+            * The `version` of the commands to send.
+            * - Default is `1`, highest is `42`.
+        */
+        command_version: number
+    }
+
     class APIInstance {
         /** The WebSocket server, if initialized. */
         wss: WebSocketServer | undefined
