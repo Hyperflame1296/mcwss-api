@@ -13,7 +13,6 @@ try {
         api.subscribe(ws, 'PlayerMessage') // listen for PlayerMessage events 
         api.on(ws, 'PlayerMessage', msg => {
             console.log(msg) // logs any PlayerMessage event that goes through
-
             api.run_command(ws, `say ${msg.body.message}`) // send the message back with /say!
         })
     });
