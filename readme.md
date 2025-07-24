@@ -17,19 +17,22 @@ let { APIInstance } = require('mcwss-api')
 
 let api = new APIInstance();
 api.start(8080, '127.0.0.1', {
-    logCmdErrors: false, // log command syntax errors
-    logCmdOutput: false, // log command output
-    logMsgErrors: false, // log errors from the client
-    logSeriousErrors: true, // log serious errors (they'd likely be JSON parse errors)
-    logOther: false // log other stuff
+    // logging
+    log_command_errors : true , // log command syntax errors into console
+    log_command_output : false, // log command outputs into console
+    log_message_errors : false, // log json message errors into console
+    log_internal_errors: true , // log internal package errors into console
+    // game stuff
+    command_version: 1 // message request version, default is 1, highest is 42
 })
-
 try {
     api.wss.on('connection', (ws, req) => {
         api.subscribe(ws, 'PlayerMessage') // listen for PlayerMessage events 
         api.on(ws, 'PlayerMessage', msg => {
-            console.log(msg) // logs any PlayerMessage event that goes through
-            api.run_command(ws, `say ${msg.body.message}`) // send the message back with /say!
+            if (msg.body.type !== 'say') { // to prevent an infinite loop
+                console.log(msg) // logs any PlayerMessage event that goes through
+                api.run_command(ws, `say ${msg.body.message}`) // send the message back with /say!
+            }
         })
     });
 } catch (err) {
