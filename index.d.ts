@@ -51,21 +51,31 @@ declare module 'mcwss-api' {
         'MobKilled': MobKilledEvent
         'MobInteracted': MobInteractedEvent
     }
+    /** An item enchantment. */
     interface Enchantment {
         level: number
         name: string
         type: number
     }
+    /** An in-game block. */
     interface Block {
         aux: number
         id: string
         namespace: string
     }
+    /** An in-game item. */
     interface Item {
         aux: number
         id: string
         namespace: string
     }
+    /** A 3D vector used to get where things are in the world. */
+    interface Vector3 {
+        x: number
+        y: number
+        z: number
+    }
+    /** An in-game item, with alot more information. */
     interface ItemAdvanced {
         aux: number
         enchantments: Enchantment[]
@@ -75,15 +85,18 @@ declare module 'mcwss-api' {
         namespace: string
         stackSize: 1
     }
+    /** An in-game entity, with almost no information. */
     interface EntitySingle {
         type: number
     }
+    /** An in-game entity. */
     interface Entity {
         color: number
         id?: number
         type: number
         variant: number
     }
+    /** An in-game entity with alot more information. */
     interface EntityAdvanced {
         color: number
         dimension: number
@@ -93,6 +106,7 @@ declare module 'mcwss-api' {
         variant: number
         yRot: number
     }
+    /** A player, usually the person who triggered an event. */
     interface Player extends EntityAdvanced {
         color: string
         dimension: number
@@ -103,6 +117,7 @@ declare module 'mcwss-api' {
         variant: number
         yRot: number
     }
+    /** An in-game event. */
     interface Event {
         body: object
         header: object
@@ -349,12 +364,6 @@ declare module 'mcwss-api' {
         send(ws: WebSocket, json: object): void
         /** Send raw string/buffer data to a client. */
         send_raw(ws: WebSocket, raw: string | ArrayBufferLike): void
-    }
-    class Vector3 {
-        constructor(coords: { x: number, y: number, z: number })
-        x: number
-        y: number
-        z: number
     }
     export {
         // interfaces & stuff

@@ -11,15 +11,7 @@ let tags = {
 class APIInstance {
     wss;
     options = {};
-    // constructor
-    constructor() {
-        process.on('uncaughtException', err => {
-            console.log(`${tags.fatal} ${color.whiteBright('Uncaught Exception')}: ${err.stack}`);
-        });
-        process.on('unhandledRejection', reason => {
-            console.log(`${tags.fatal} ${color.whiteBright('Unhandled Rejection')}: ${reason}`);
-        });
-    }
+    constructor() {}
     // methods
     start(port, host, options) {
         try {
@@ -224,26 +216,6 @@ class APIInstance {
         }
     }
 }
-// other stuff
-class Vector3 {
-    constructor({ x, y, z }) {
-        try {
-            if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
-                throw new Error(`One or more parameters aren\'t a number.`);
-            } else {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-            }
-        } catch (err) {
-            this.options.logSeriousErrors ? console.log(`${tags.error} - Vector3.constructor - ${color.whiteBright(err)}`) : void 0
-        }
-    }
-    valueOf() {
-        return { x: this.x, y: this.y, z: this.z }
-    }
-}
 module.exports = {
-    APIInstance,
-    Vector3
+    APIInstance
 }
