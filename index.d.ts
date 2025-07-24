@@ -40,5 +40,7 @@ declare module 'mcwss-api' {
         on(ws: WebSocket, event_type: EventType, cb: (msg: object) => void): void;
         on_purpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): void;
         run_command(ws: WebSocket, command: string): void;
+        send(ws: WebSocket, json: object): void;
+        send_raw(ws: WebSocket, raw: string | ArrayBufferLike): void;
     }
 }
