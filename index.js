@@ -88,7 +88,7 @@ class APIInstance {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.stop - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    subscribe(ws, event_type) {
+    subscribe(ws, eventType) {
         try {
             ws.send(JSON.stringify({
                 header: {
@@ -98,40 +98,44 @@ class APIInstance {
                     messagePurpose: 'subscribe',
                 },
                 body: {
-                    eventName: event_type
+                    eventName: eventType
                 }
             }))
         } catch (err) {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    on(ws, event_type, cb) {
+    on(ws, eventType, cb) {
         try {
-            ws.on('message', raw => {
+            let a = raw => {
                 let msg = JSON.parse(raw.toString())
 
-                if (msg.header.eventName === event_type || msg.body.eventName === event_type) {
+                if (msg.header.eventName === eventType || msg.body.eventName === eventType) {
                     cb(msg);
                 } else return;
-            })
+            }
+            ws.on('message', a)
+            return a;
         } catch (err) {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.on - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    on_purpose(ws, purpose, cb) {
+    onPurpose(ws, purpose, cb) {
         try {
-            ws.on('message', raw => {
+            let a = raw => {
                 let msg = JSON.parse(raw.toString())
 
                 if (msg.header.messagePurpose === purpose) {
                     cb(msg);
                 } else return;
-            })
+            }
+            ws.on('message', a)
+            return a;
         } catch (err) {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    unsubscribe(ws, event_type) {
+    unsubscribe(ws, eventType) {
         try {
             ws.send(JSON.stringify({
                 header: {
@@ -141,7 +145,7 @@ class APIInstance {
                     messagePurpose: 'unsubscribe',
                 },
                 body: {
-                    eventName: event_type
+                    eventName: eventType
                 }
             }))
         } catch (err) {
@@ -155,14 +159,14 @@ class APIInstance {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    send_raw(ws, raw) {
+    raw(ws, raw) {
         try {
             ws.send(raw)
         } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.send_raw - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.raw - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    run_command(ws, command) {
+    runCommand(ws, command) {
         let ret;
         try {
             if (typeof command === 'string') {
@@ -205,12 +209,12 @@ class APIInstance {
                     }
                 }
             } else {
-                console.log(`${tags.error} - APIInstance.run_command - Command input must be either an Array or String.`)
+                console.log(`${tags.error} - APIInstance.runCommand - Command input must be either an Array or String.`)
                 return ''
             }
             return ret
         } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.run_command - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.runCommand - ${color.whiteBright(err)}`) : void 0;
             return ''
         }
     }

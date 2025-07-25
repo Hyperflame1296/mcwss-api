@@ -1,4 +1,3 @@
-
 declare module 'mcwss-api' {
     import type { WebSocketServer, WebSocket } from "ws";
     type EventType = 
@@ -402,19 +401,19 @@ declare module 'mcwss-api' {
         /** Stop the WebSocket server. */
         stop(): void
         /** Subscribe to an event, to listen for it. */
-        subscribe(ws: WebSocket, event_type: EventType): void
+        subscribe(ws: WebSocket, eventType: EventType): void
         /** Unsubscribe to an event, to stop listening for it. */
-        unsubscribe(ws: WebSocket, event_type: EventType): void
+        unsubscribe(ws: WebSocket, eventType: EventType): void
         /** Listen for a specified event type. */
-        on<K extends keyof EventMap>(ws: WebSocket, event_type: K, cb: (msg: EventMap[K]) => void): void
+        on<K extends keyof EventMap>(ws: WebSocket, eventType: K, cb: (msg: EventMap[K]) => void): void
         /** Listen for a specified event purpose. */
-        on_purpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): void
+        onPurpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): void
         /** Externally run a minecraft command. */
-        run_command(ws: WebSocket, command: string | string[]): string | string[]
+        runCommand(ws: WebSocket, command: string | string[]): string | string[]
         /** Send JSON data to a client. */
         send(ws: WebSocket, json: object): void
         /** Send raw string/buffer data to a client. */
-        send_raw(ws: WebSocket, raw: string | ArrayBufferLike): void
+        raw(ws: WebSocket, raw: string | ArrayBufferLike): void
     }
     export {
         // interfaces & stuff

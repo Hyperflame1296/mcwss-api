@@ -31,7 +31,7 @@ try {
         api.on(ws, 'PlayerMessage', msg => {
             if (msg.body.type !== 'say') { // to prevent an infinite loop
                 console.log(msg) // logs any PlayerMessage event that goes through
-                api.run_command(ws, `say ${msg.body.message}`) // send the message back with /say!
+                api.runCommand(ws, `say ${msg.body.message}`) // send the message back with /say!
             }
         })
     });
@@ -42,11 +42,11 @@ try {
 
 # Methods
 
-### run_command
+### runCommand
 Execute a command in Minecraft.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
 ```javascript
-api.run_command(ws, command)
+api.runCommand(ws, command)
 ```
 
 ### start
@@ -84,10 +84,10 @@ Run a callback every time a message of a specified event type goes through.
 api.on(ws, event_type, callback)
 ```
 
-### on_purpose
+### onPurpose
 Run a callback every time a message of a specified purpose goes through.
 ```javascript
-api.on_purpose(ws, purpose, callback)
+api.onPurpose(ws, purpose, callback)
 ```
 
 ### send
@@ -96,10 +96,10 @@ Send JSON data to a client.
 api.send(ws, json)
 ```
 
-### send_raw
+### raw
 Send raw buffer/string data to a client.
 ```javascript
-api.send_raw(ws, raw)
+api.raw(ws, raw)
 ```
 
 # Properties
