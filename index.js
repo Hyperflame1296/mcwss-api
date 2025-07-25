@@ -186,7 +186,7 @@ class APIInstance {
                     }
                 }))
                 return ret
-            } else if (command instanceof Array) {
+            } else if (Array.isArray(command)) {
                 ret = []
                 for (let cmd of command) {
                     if (typeof cmd !== 'undefined') {
@@ -216,6 +216,53 @@ class APIInstance {
         } catch (err) {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.runCommand - ${color.whiteBright(err)}`) : void 0;
             return ''
+        }
+    }
+    async runCommandAsync(ws, command, timeout = 10000) {
+        let waitForCommandResponse = () => {
+            return new Promise((resolve, reject) => {
+                let timer = setTimeout(() => {
+                    ws.off('message', handler);
+                    this.options.log_internal_errors
+                        ? reject(new Error(`${tags.error} - Timed out waiting for commandResponse!`))
+                        : reject();
+                }, timeout);
+
+                function handler(data) {
+                    let msg;
+                    try {
+                        msg = JSON.parse(data);
+                    } catch {
+                        return;
+                    }
+
+                    if (msg?.header?.messagePurpose === 'commandResponse') {
+                        clearTimeout(timer);
+                        ws.off('message', handler);
+                        resolve(msg);
+                    }
+                }
+
+                ws.on('message', handler);
+            });
+        };
+
+        if (typeof command === 'string') {
+            this.runCommand(ws, command);
+            let result = await waitForCommandResponse();
+            return result;
+        } else if (Array.isArray(command)) {
+            let results = [];
+            for (let cmd of command) {
+                if (typeof cmd !== 'string') continue;
+                this.runCommand(ws, cmd);
+                let result = await waitForCommandResponse();
+                results.push(result);
+            }
+            return results;
+        } else {
+            console.log(`${tags.error} - APIInstance.runCommandAsync - Command input must be either an Array or String.`);
+            return;
         }
     }
 }

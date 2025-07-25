@@ -408,8 +408,13 @@ declare module 'mcwss-api' {
         on<K extends keyof EventMap>(ws: WebSocket, eventType: K, cb: (msg: EventMap[K]) => void): void
         /** Listen for a specified event purpose. */
         onPurpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): void
-        /** Externally run a minecraft command. */
+        /** Execute an in-game command. */
         runCommand(ws: WebSocket, command: string | string[]): string | string[]
+        /** 
+            * Execute an in-game command, and wait for the response.  
+            * ***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
+        */
+        async runCommandAsync(ws: WebSocket, command: string | string[]): Promise
         /** Send JSON data to a client. */
         send(ws: WebSocket, json: object): void
         /** Send raw string/buffer data to a client. */

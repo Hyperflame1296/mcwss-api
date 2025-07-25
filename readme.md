@@ -43,10 +43,20 @@ try {
 # Methods
 
 ### runCommand
-Execute a command in Minecraft.
+Execute an in-game command.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+- Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
 ```javascript
 api.runCommand(ws, command)
+```
+
+### runCommandAsync
+Execute an in-game command, and wait for a response.  
+***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
+- `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+- Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+```javascript
+await api.runCommandAsync(ws, command)
 ```
 
 ### start
