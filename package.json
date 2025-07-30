@@ -1,6 +1,6 @@
 {
   "name": "mcwss-api",
-  "version": "0.2.8-alpha.rev0",
+  "version": "0.2.8-alpha.rev1",
   "description": "Im making a wrapper for the Minecraft WSS API, an undocumented API that lets you communicate with Minecraft Bedrock Edition through WebSockets.",
   "keywords": [
     "minecraft",
@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "cli-color": "^2.0.4",
-    "uuid": "^11.1.0",
     "ws": "^8.18.3"
   }
 }

@@ -1,6 +1,6 @@
 let WebSocket = require('ws');
-let uuid = require('uuid');
 let color = require('cli-color');
+let crypto = require('node:crypto')
 let tags = {
     info: `[${color.cyanBright('INFO')}]`,
     warn: `[${color.yellowBright('WARNING')}]`,
@@ -39,8 +39,6 @@ class APIInstance {
                                 } else if (msg.body.statusCode >= 0 && this.options.log_command_output) {
                                     console.log(`${tags.info} ${color.whiteBright(msg.body.statusMessage)}`)
                                 }
-                                break;
-                            case 'event':
                                 break;
                             case 'error': 
                                 this.options.log_message_errors ? console.log(`${tags.error} ${color.whiteBright('An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
@@ -93,7 +91,7 @@ class APIInstance {
             ws.send(JSON.stringify({
                 header: {
                     version: this.options.command_version,
-                    requestId: uuid.v4(),
+                    requestId: crypto.randomUUID({ disableEntropyCache: true }),
                     messageType: 'commandRequest',
                     messagePurpose: 'subscribe',
                 },
@@ -140,7 +138,7 @@ class APIInstance {
             ws.send(JSON.stringify({
                 header: {
                     version: this.options.command_version,
-                    requestId: uuid.v4(),
+                    requestId: crypto.randomUUID({ disableEntropyCache: true }),
                     messageType: 'commandRequest',
                     messagePurpose: 'unsubscribe',
                 },
@@ -170,11 +168,11 @@ class APIInstance {
         let ret;
         try {
             if (typeof command === 'string') {
-                ret = uuid.v4()
+                ret = crypto.randomUUID({ disableEntropyCache: true })
                 ws.send(JSON.stringify({
                     header: {
                         version: this.options.command_version,
-                        requestId: uuid.v4(),
+                        requestId: crypto.randomUUID({ disableEntropyCache: true }),
                         messageType: 'commandRequest',
                         messagePurpose: 'commandRequest'
                     },
@@ -190,7 +188,7 @@ class APIInstance {
                 ret = []
                 for (let cmd of command) {
                     if (typeof cmd !== 'undefined') {
-                        let id = uuid.v4()
+                        let id = crypto.randomUUID({ disableEntropyCache: true })
                         ws.send(JSON.stringify({
                             header: {
                                 version: this.options.command_version,

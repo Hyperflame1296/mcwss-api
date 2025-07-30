@@ -20,13 +20,19 @@ declare module 'mcwss-api' {
         | 'MobKilled'
         | 'MobInteracted'
     type MessagePurpose =
-        | 'commandRequest'
-        | 'commandResponse'
-        | 'event'
-        | 'error'
         | 'subscribe'
         | 'unsubscribe'
-
+        | 'event'
+        | 'error'
+        | 'commandRequest'
+        | 'commandResponse'
+        | 'encrypt'
+        | 'data'
+        | 'data:block'
+        | 'data:item'
+        | 'data:mob'
+        | 'ws:encryptionRequest'
+        | 'ws:encryptionResponse'
     interface EventMap {
         'PlayerMessage': PlayerMessageEvent
         'PlayerTravelled': PlayerTravelledEvent

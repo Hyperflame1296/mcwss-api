@@ -185,8 +185,16 @@ This fires whenever you interact with a mob. (unless it has no interact function
 These are all of the values that `messagePurpose` can have (or at least all of the ones that i've found).
 
 ```plaintext
-commandRequest
-commandResponse
+subscribe
+unsubscribe
 event
 error
+commandRequest
+commandResponse
+data:block
+data:item
+data:mob
+ws:encrypt
+ws:encryptionRequest
+ws:encryptionResponse
 ```
