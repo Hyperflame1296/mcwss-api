@@ -1,5 +1,6 @@
 declare module 'mcwss-api' {
     import type { WebSocketServer, WebSocket } from "ws";
+    // types
     type EventType = 
         | 'PlayerMessage'
         | 'PlayerTravelled'
@@ -33,26 +34,8 @@ declare module 'mcwss-api' {
         | 'data:mob'
         | 'ws:encryptionRequest'
         | 'ws:encryptionResponse'
-    interface EventMap {
-        'PlayerMessage': PlayerMessageEvent
-        'PlayerTravelled': PlayerTravelledEvent
-        'PlayerTransform': PlayerTransformEvent
-        'PlayerTeleported': PlayerTeleportedEvent
-        'PlayerDied': PlayerDiedEvent
-        'PlayerBounced': PlayerBouncedEvent
-        'EntitySpawned': EntitySpawnedEvent
-        'ItemUsed': ItemUsedEvent
-        'ItemInteracted': ItemInteractedEvent
-        'ItemEquipped': ItemEquippedEvent
-        'ItemAcquired': ItemAcquiredEvent
-        'ItemDropped': ItemDroppedEvent
-        'ItemSmelted': ItemSmeltedEvent
-        'ItemCrafted': ItemCraftedEvent
-        'BlockPlaced': BlockPlacedEvent
-        'BlockBroken': BlockBrokenEvent
-        'MobKilled': MobKilledEvent
-        'MobInteracted': MobInteractedEvent
-    }
+
+    // interfaces
     /** An item enchantment. */
     interface Enchantment {
         level: number
@@ -124,7 +107,7 @@ declare module 'mcwss-api' {
         body: object
         header: object
     }
-    interface PlayerMessageEvent extends Event {
+    interface ChatSendAfterEvent extends Event {
         body: {
             message: string
             receiver: string
@@ -137,7 +120,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface PlayerTravelledEvent extends Event {
+    interface PlayerMoveAfterEvent extends Event {
         body: {
             isUnderwater: boolean
             metersTravelled: number
@@ -151,7 +134,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface PlayerTransformEvent extends Event {
+    interface PlayerTransformAfterEvent extends Event {
         body: {
             player: Player
         }
@@ -161,7 +144,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface PlayerTeleportedEvent extends Event {
+    interface PlayerTeleportAfterEvent extends Event {
         body: {
             cause: number,
             itemType: number
@@ -174,7 +157,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface PlayerDiedEvent extends Event {
+    interface PlayerDieAfterEvent extends Event {
         body: {
             cause: number
             inRaid: boolean
@@ -187,7 +170,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface PlayerBouncedEvent extends Event {
+    interface PlayerBounceAfterEvent extends Event {
         body: {
             block: Block
             bounceHeight: number
@@ -199,7 +182,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface EntitySpawnedEvent extends Event {
+    interface EntitySpawnAfterEvent extends Event {
         body: {
             mob: EntitySingle
             player: Player
@@ -211,7 +194,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface ItemUsedEvent extends Event {
+    interface ItemCompleteUseAfterEvent extends Event {
         body: {
             count: number
             item: Item
@@ -224,7 +207,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface ItemInteractedEvent extends Event {
+    interface ItemInteractAfterEvent extends Event {
         body: {
             count: number
             item: ItemAdvanced
@@ -238,7 +221,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface ItemEquippedEvent extends Event {
+    interface PlayerEquipItemAfterEvent extends Event {
         body: {
             item: ItemAdvanced
             player: Player
@@ -250,7 +233,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface ItemAcquiredEvent extends Event {
+    interface PlayerAcquireItemAfterEvent extends Event {
         body: {
             acquisitionMethodId: number
             count: number
@@ -263,7 +246,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface ItemDroppedEvent extends Event {
+    interface PlayerDropItemAfterEvent extends Event {
         body: {
             count: number
             item: Item
@@ -275,7 +258,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface ItemSmeltedEvent extends Event {
+    interface PlayerAcquireSmeltedItemAfterEvent extends Event {
         body: {
             fuelSource: Item
             item: ItemAdvanced
@@ -287,7 +270,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface ItemCraftedEvent extends Event {
+    interface PlayerCraftItemAfterEvent extends Event {
         body: {
             count: number
             craftedAutomatically: boolean
@@ -307,7 +290,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface BlockPlacedEvent extends Event {
+    interface PlayerPlaceBlockAfterEvent extends Event {
         body: {
             block: Block
             count: number
@@ -322,7 +305,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface BlockBrokenEvent extends Event {
+    interface PlayerBreakBlockAfterEvent extends Event {
         body: {
             block: Block
             count: number
@@ -337,7 +320,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface MobKilledEvent extends Event {
+    interface PlayerKillEntityAfterEvent extends Event {
         body: {
             armorBody: ItemAdvanced
             armorFeet: ItemAdvanced
@@ -357,7 +340,7 @@ declare module 'mcwss-api' {
             version: number
         }
     }
-    interface MobInteractedEvent extends Event {
+    interface PlayerInteractWithEntityAfterEvent extends Event {
         body: {
             interactionType: number
             mob: Entity
@@ -396,35 +379,156 @@ declare module 'mcwss-api' {
         */
         command_version: number
     }
-
+    // classes
     class APIInstance {
-        /** The WebSocket server, if initialized. */
-        wss: WebSocketServer | undefined
-        /** The options for the API. */
-        options: APIOptions;
         /** Start the WebSocket server. */
-        start(port: number, host: string, options: APIOptions): void
+        public start(port: number, host: string, options: APIOptions): void
         /** Stop the WebSocket server. */
-        stop(): void
-        /** Subscribe to an event, to listen for it. */
-        subscribe(ws: WebSocket, eventType: EventType): void
-        /** Unsubscribe to an event, to stop listening for it. */
-        unsubscribe(ws: WebSocket, eventType: EventType): void
-        /** Listen for a specified event type. */
-        on<K extends keyof EventMap>(ws: WebSocket, eventType: K, cb: (msg: EventMap[K]) => void): void
+        public stop(): void
+        /** Subscribe to an custom event type, to listen for for any event that isn't in the Events section. */
+        public subscribeCustom(ws: WebSocket, eventType: EventType): void
+        /** Unsubscribe to an custom event type, to stop listening for any event that isn't in the Events section. */
+        public unsubscribeCustom(ws: WebSocket, eventType: EventType): void
         /** Listen for a specified event purpose. */
-        onPurpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): void
-        /** Execute an in-game command. */
-        runCommand(ws: WebSocket, command: string | string[]): string | string[]
+        public onPurpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): Function
+        /** Stop listening for a specified event purpose. */
+        public offPurpose(ws: WebSocket, cb: (msg: object) => void): void
         /** 
-            * Execute an in-game command, and wait for the response.  
-            * ***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
+            * Execute an in-game command for a all clients connected to the WSS.
+            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
         */
-        async runCommandAsync(ws: WebSocket, command: string | string[]): Promise
+        public runCommand(ws: WebSocket, command: string | string[]): string[] | string[][]
+        /** 
+            * Execute an in-game command for all clients connected to the WSS, and wait for a response.  
+            * ***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
+            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+        */
+        public runCommandAsync(ws: WebSocket, command: string | string[]): Promise<object | object[]>[]
+        /** 
+            * Execute an in-game command for a specific client connected to the WSS.
+            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+        */
+        public runCommandForOneClient(ws: WebSocket, command: string | string[]): string[] | string[][]
+        /** 
+            * Execute an in-game command for a specific connected to the WSS, and wait for a response.  
+            * ***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
+            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+        */
+        public runCommandAsyncForOneClient(ws: WebSocket, command: string | string[]): Promise<object | object[]>[]
         /** Send JSON data to a client. */
-        send(ws: WebSocket, json: object): void
+        public send(ws: WebSocket, json: object): void
         /** Send raw string/buffer data to a client. */
-        raw(ws: WebSocket, raw: string | ArrayBufferLike): void
+        public raw(ws: WebSocket, raw: string | ArrayBufferLike): void
+        /** The WebSocket server, if initialized. */
+        public wss: WebSocketServer | undefined
+        /** The options for the API. */
+        public options: APIOptions;
+        public afterEvents = {
+            chatSend: ChatSendAfterEventSignal,
+            playerMove: PlayerMoveAfterEventSignal,
+            playerTransform: PlayerTransformAfterEventSignal,
+            playerTeleport: PlayerTeleportAfterEventSignal,
+            playerDie: PlayerDieAfterEventSignal,
+            playerBounce: PlayerBounceAfterEventSignal,
+            entitySpawn: EntitySpawnAfterEventSignal,
+            itemCompleteUse: ItemCompleteUseAfterEventSignal,
+            itemInteract: ItemInteractAfterEventSignal,
+            playerEquipItem: PlayerEquipItemAfterEventSignal,
+            playerAcquireItem: PlayerAcquireItemAfterEventSignal,
+            playerDropItem: PlayerDropItemAfterEventSignal,
+            playerAcquireSmeltedItem: PlayerAcquireSmeltedItemAfterEventSignal,
+            playerCraftItem: PlayerCraftItemAfterEventSignal,
+            playerPlaceBlock: PlayerPlaceBlockAfterEventSignal,
+            playerBreakBlock: PlayerBreakBlockAfterEventSignal,
+            playerKillEntity: PlayerKillEntityAfterEventSignal,
+            playerInteractWithEntity: PlayerInteractWithEntityAfterEventSignal
+        }
+    }
+    class ChatSendAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: ChatSendAfterEvent) => void): void
+        public unsubscribe(callback: (msg: ChatSendAfterEvent) => void): void
+    }
+    class PlayerMoveAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerMoveAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerMoveAfterEvent) => void): void
+    }
+    class PlayerTransformAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerTransformAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerTransformAfterEvent) => void): void
+    }
+    class PlayerTeleportAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerTeleportAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerTeleportAfterEvent) => void): void
+    }
+    class PlayerDieAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerDieAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerDieAfterEvent) => void): void
+    }
+    class PlayerBounceAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerBounceAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerBounceAfterEvent) => void): void
+    }
+    class EntitySpawnAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: EntitySpawnAfterEvent) => void): void
+        public unsubscribe(callback: (msg: EntitySpawnAfterEvent) => void): void
+    }
+    class ItemCompleteUseAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
+        public unsubscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
+    }
+    class ItemInteractAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: ItemInteractAfterEvent) => void): void
+        public unsubscribe(callback: (msg: ItemInteractAfterEvent) => void): void
+    }
+    class PlayerEquipItemAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
+    }
+    class PlayerAcquireItemAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerAcquireItemAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerAcquireItemAfterEvent) => void): void
+    }
+    class PlayerDropItemAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerDropItemAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerDropItemAfterEvent) => void): void
+    }
+    class PlayerCraftItemAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerCraftItemAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerCraftItemAfterEvent) => void): void
+    }
+    class PlayerAcquireSmeltedItemAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerAcquireSmeltedItemAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerAcquireSmeltedItemAfterEvent) => void): void
+    }
+    class PlayerPlaceBlockAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerPlaceBlockAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerPlaceBlockAfterEvent) => void): void
+    }
+    class PlayerBreakBlockAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerBreakBlockAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerBreakBlockAfterEvent) => void): void
+    }
+    class PlayerKillEntityAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerKillEntityAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerKillEntityAfterEvent) => void): void
+    }
+    class PlayerInteractWithEntityAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
+        public unsubscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
+    }
+    class AfterEventSignal {
+        private #internalName: EventType
+        private #callbacks: ((msg: any) => void)[]
+        private #apiInstance: APIInstance
+        constructor(internalName=EventType, apiInstance=APIInstance)
+        /** Subscribe to the event signal. */
+        public subscribe(callback: (msg: any) => void): void
+        /** Unsubscribe from the event signal. */
+        public unsubscribe(callback: (msg: any) => void): void
     }
     export {
         // interfaces & stuff
@@ -437,25 +541,45 @@ declare module 'mcwss-api' {
         Block,
         Player,
         EventType,
-        EventMap,
         MessagePurpose,
         // events
-        PlayerMessageEvent,
-        PlayerTravelledEvent,
-        PlayerTransformEvent,
-        PlayerTeleportedEvent,
-        PlayerDiedEvent,
-        PlayerBouncedEvent,
-        EntitySpawnedEvent,
-        ItemUsedEvent,
-        ItemAcquiredEvent,
-        ItemDroppedEvent,
-        ItemSmeltedEvent,
-        ItemCraftedEvent,
-        BlockPlacedEvent,
-        BlockBrokenEvent,
-        MobKilledEvent,
-        MobInteractedEvent,
+        ChatSendAfterEvent,
+        PlayerMoveAfterEvent,
+        PlayerTransformAfterEvent,
+        PlayerTeleportAfterEvent,
+        PlayerDieAfterEvent,
+        PlayerBounceAfterEvent,
+        EntitySpawnAfterEvent,
+        ItemCompleteUseAfterEvent,
+        ItemInteractAfterEvent,
+        PlayerEquipItemAfterEvent,
+        PlayerAcquireItemAfterEvent,
+        PlayerDropItemAfterEvent,
+        PlayerCraftItemAfterEvent,
+        PlayerAcquireSmeltedItemAfterEvent,
+        PlayerPlaceBlockAfterEvent,
+        PlayerBreakBlockAfterEvent,
+        PlayerKillEntityAfterEvent,
+        PlayerInteractWithEntityAfterEvent,
+        // event signals
+        ChatSendAfterEventSignal,
+        PlayerMoveAfterEventSignal,
+        PlayerTransformAfterEventSignal,
+        PlayerTeleportAfterEventSignal,
+        PlayerDieAfterEventSignal,
+        PlayerBounceAfterEventSignal,
+        EntitySpawnAfterEventSignal,
+        ItemCompleteUseAfterEventSignal,
+        ItemInteractAfterEventSignal,
+        PlayerEquipItemAfterEventSignal,
+        PlayerAcquireItemAfterEventSignal,
+        PlayerDropItemAfterEventSignal,
+        PlayerCraftItemAfterEventSignal,
+        PlayerAcquireSmeltedItemAfterEventSignal,
+        PlayerPlaceBlockAfterEventSignal,
+        PlayerBreakBlockAfterEventSignal,
+        PlayerKillEntityAfterEventSignal,
+        PlayerInteractWithEntityAfterEventSignal,
         // classes
         APIOptions,
         APIInstance,

@@ -25,38 +25,52 @@ api.start(8080, '127.0.0.1', {
     // game stuff
     command_version: 1 // message request version, default is 1, highest is 42
 })
-try {
-    api.wss.on('connection', (ws, req) => {
-        api.subscribe(ws, 'PlayerMessage') // listen for PlayerMessage events 
-        api.on(ws, 'PlayerMessage', msg => {
-            if (msg.body.type !== 'say') { // to prevent an infinite loop
-                console.log(msg) // logs any PlayerMessage event that goes through
-                api.runCommand(ws, `say ${msg.body.message}`) // send the message back with /say!
-            }
-        })
-    });
-} catch (err) {
-    console.log(`error: ${err}`) // log any errors that occur
-}
+
+api.wss.on('connection', ws => {
+    api.afterEvents.chatSend.subscribe(msg => {
+        if (msg.body.type !== 'say') { // to prevent an infinite loop
+            console.log(msg) // logs any PlayerMessage event that goes through
+            api.runCommand(`say ${msg.body.message}`) // send the message back with /say!
+        }
+    })
+});
 ```
 
 # Methods
 
 ### runCommand
-Execute an in-game command.
+Execute an in-game command for all clients connected to the WSS.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
 - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
 ```javascript
-api.runCommand(ws, command)
+api.runCommand(command)
 ```
 
 ### runCommandAsync
-Execute an in-game command, and wait for a response.  
+Execute an in-game command for all clients connected to the WSS, and wait for a response.  
 ***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
 - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
 ```javascript
-await api.runCommandAsync(ws, command)
+await api.runCommandAsync(command)
+```
+
+### runCommandForOneClient
+Execute an in-game command for a specific client connected to the WSS.
+- `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+- Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+```javascript
+api.runCommandForOneClient(ws, command)
+```
+
+### runCommandAsyncForOneClient
+Execute an in-game command for a specific client connected to the WSS, and wait for a response.  
+***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
+
+- `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+- Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+```javascript
+await api.runCommandAsyncForOneClient(ws, command)
 ```
 
 ### start
@@ -72,32 +86,28 @@ Stop the server.
 api.stop()
 ```
 
-### subscribe
-Subscribe to an event type, to listen for it. 
-- Available events are in the Events section.
+### subscribeCustom
+Subscribe to an custom event type, to listen for events that aren't in the Events section.
 ```javascript
-api.subscribe(ws, event_type)
+api.subscribeCustom(event_type)
 ```
 
-### unsubscribe
-Unsubscribe to an event type, to stop listening for it.
-- Available events are in the Events section.
+### unsubscribeCustom
+Unsubscribe to an custom event type, to stop listening for events that aren't in the Events section.
 ```javascript
-api.unsubscribe(ws, event_type)
-```
-
-### on
-Run a callback every time a message of a specified event type goes through.
-- Available events are in the Events section.
-- Make sure to run `api.subscribe(ws, event_type)` beforehand, otherwise this will not work.
-```javascript
-api.on(ws, event_type, callback)
+api.unsubscribeCustom(event_type)
 ```
 
 ### onPurpose
-Run a callback every time a message of a specified purpose goes through.
+Listen for a specified event purpose.
 ```javascript
-api.onPurpose(ws, purpose, callback)
+api.onPurpose(purpose, callback)
+```
+
+### offPurpose
+Stop listening for a specified event purpose.
+```javascript
+api.offPurpose(purpose, callback)
 ```
 
 ### send
@@ -114,10 +124,13 @@ api.raw(ws, raw)
 
 # Properties
 ### wss
-The server class itself. This is useful for other raw data communication.
+The server object itself.
 
 ### options
-The options for the package
+The options for the package.
+
+### afterEvents
+All of the available event signals that you can subscribe to.
 
 # Events
 These are all of the events that worked when I tested them.

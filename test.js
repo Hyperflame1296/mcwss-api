@@ -11,16 +11,11 @@ api.start(8080, '127.0.0.1', {
     command_version: 1 // message request version, default is 1, highest is 42
 })
 
-try {
-    api.wss.on('connection', (ws, req) => {
-        api.subscribe(ws, 'PlayerMessage') // listen for PlayerMessage events 
-        api.on(ws, 'PlayerMessage', msg => {
-            if (msg.body.type !== 'say') { // to prevent an infinite loop
-                console.log(msg) // logs any PlayerMessage event that goes through
-                api.runCommand(ws, `say ${msg.body.message}`) // send the message back with /say!
-            }
-        })
-    });
-} catch (err) {
-    console.log(`error: ${err}`) // log any errors that occur
-}
+api.wss.on('connection', ws => {
+    api.afterEvents.chatSend.subscribe(msg => {
+        if (msg.body.type !== 'say') { // to prevent an infinite loop
+            console.log(msg) // logs any PlayerMessage event that goes through
+            api.runCommand(`say ${msg.body.message}`) // send the message back with /say!
+        }
+    })
+});

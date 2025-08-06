@@ -1,16 +1,38 @@
 let WebSocket = require('ws');
 let color = require('cli-color');
 let crypto = require('node:crypto')
+let _version = require('./package.json').version
 let tags = {
     info: `[${color.cyanBright('INFO')}]`,
     warn: `[${color.yellowBright('WARNING')}]`,
     error: `[${color.redBright('ERROR')}]`,
     fatal: `[${color.red('FATAL')}]`,
 }
+console.log(`${tags.info} ${color.greenBright('Package loaded')}; version: ${color.cyanBright(_version)}`); // log the version of the package
 // api
 class APIInstance {
     wss;
     options = {};
+    afterEvents = {
+        chatSend: new AfterEventSignal('PlayerMessage', this),
+        playerMove: new AfterEventSignal('PlayerTravelled', this),
+        playerTransform: new AfterEventSignal('PlayerTransform', this),
+        playerTeleport: new AfterEventSignal('PlayerTeleported', this),
+        playerDie: new AfterEventSignal('PlayerDied', this),
+        playerBounce: new AfterEventSignal('PlayerBounced', this),
+        entitySpawn: new AfterEventSignal('EntitySpawned', this),
+        itemCompleteUse: new AfterEventSignal('ItemUsed', this),
+        itemInteract: new AfterEventSignal('ItemInteracted', this),
+        playerEquipItem: new AfterEventSignal('ItemEquipped', this),
+        playerAcquireItem: new AfterEventSignal('ItemAcquired', this),
+        playerDropItem: new AfterEventSignal('ItemDropped', this),
+        playerAcquireSmeltedItem: new AfterEventSignal('ItemSmelted', this),
+        playerCraftItem: new AfterEventSignal('ItemCrafted', this),
+        playerPlaceBlock: new AfterEventSignal('BlockPlaced', this),
+        playerBreakBlock: new AfterEventSignal('BlockBroken', this),
+        playerKillEntity: new AfterEventSignal('MobKilled', this),
+        playerInteractWithEntity: new AfterEventSignal('MobInteracted', this)
+    }
     constructor() {}
     // methods
     start(port, host, options) {
@@ -86,86 +108,150 @@ class APIInstance {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.stop - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    subscribe(ws, eventType) {
-        try {
-            ws.send(JSON.stringify({
-                header: {
-                    version: this.options.command_version,
-                    requestId: crypto.randomUUID({ disableEntropyCache: true }),
-                    messageType: 'commandRequest',
-                    messagePurpose: 'subscribe',
-                },
-                body: {
-                    eventName: eventType
-                }
-            }))
-        } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
-        }
-    }
-    on(ws, eventType, cb) {
-        try {
-            let a = raw => {
-                let msg = JSON.parse(raw.toString())
+    onPurpose(purpose, cb) {
+        for (let ws of this.wss.clients) {
+            if (ws.readyState !== WebSocket.OPEN) return;
+            try {
+                let a = raw => {
+                    let msg = JSON.parse(raw.toString())
 
-                if (msg.header.eventName === eventType || msg.body.eventName === eventType) {
-                    cb(msg);
-                } else return;
-            }
-            ws.on('message', a)
-            return a;
-        } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.on - ${color.whiteBright(err)}`) : void 0;
-        }
-    }
-    onPurpose(ws, purpose, cb) {
-        try {
-            let a = raw => {
-                let msg = JSON.parse(raw.toString())
-
-                if (msg.header.messagePurpose === purpose) {
-                    cb(msg);
-                } else return;
-            }
-            ws.on('message', a)
-            return a;
-        } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribe - ${color.whiteBright(err)}`) : void 0;
-        }
-    }
-    unsubscribe(ws, eventType) {
-        try {
-            ws.send(JSON.stringify({
-                header: {
-                    version: this.options.command_version,
-                    requestId: crypto.randomUUID({ disableEntropyCache: true }),
-                    messageType: 'commandRequest',
-                    messagePurpose: 'unsubscribe',
-                },
-                body: {
-                    eventName: eventType
+                    if (msg.header.messagePurpose === purpose) {
+                        cb(msg);
+                    } else return;
                 }
-            }))
-        } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.unsubscribe - ${color.whiteBright(err)}`) : void 0;
+                ws.on('message', a)
+                return a;
+            } catch (err) {
+                this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.onPurpose - ${color.whiteBright(err)}`) : void 0;
+            }
+        };
+    }
+    offPurpose(cb) {
+        for (let ws of this.wss.clients) {
+            if (ws.readyState !== WebSocket.OPEN) return;
+            try {
+                ws.off('message', cb)
+                return;
+            } catch (err) {
+                this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.offPurpose - ${color.whiteBright(err)}`) : void 0;
+            }
         }
     }
-    send(ws, json) {
-        try {
-            ws.send(JSON.stringify(json))
-        } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
+    unsubscribeCustom(eventType) {
+        for (let ws of this.wss.clients) {
+            if (ws.readyState !== WebSocket.OPEN) return;
+            try {
+                ws.send(JSON.stringify({
+                    header: {
+                        version: this.options.command_version,
+                        requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                        messageType: 'commandRequest',
+                        messagePurpose: 'unsubscribe',
+                    },
+                    body: {
+                        eventName: eventType
+                    }
+                }))
+            } catch (err) {
+                this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.unsubscribeCustom - ${color.whiteBright(err)}`) : void 0;
+            }
         }
     }
-    raw(ws, raw) {
-        try {
-            ws.send(raw)
-        } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.raw - ${color.whiteBright(err)}`) : void 0;
+    subscribeCustom(eventType) {
+        for (let ws of this.wss.clients) {
+            if (ws.readyState !== WebSocket.OPEN) return;
+            try {
+                ws.send(JSON.stringify({
+                    header: {
+                        version: this.options.command_version,
+                        requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                        messageType: 'commandRequest',
+                        messagePurpose: 'subscribe',
+                    },
+                    body: {
+                        eventName: eventType
+                    }
+                }))
+            } catch (err) {
+                this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribeCustom - ${color.whiteBright(err)}`) : void 0;
+            }
         }
     }
-    runCommand(ws, command) {
+    send(json) {
+        for (let ws of this.wss.clients) {
+            if (ws.readyState !== WebSocket.OPEN) return;
+            try {
+                ws.send(JSON.stringify(json))
+            } catch (err) {
+                this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
+            }
+        };
+    }
+    raw(raw) {
+        for (let ws of this.wss.clients) {
+            if (ws.readyState !== WebSocket.OPEN) return;
+            try {
+                ws.send(raw)
+            } catch (err) {
+                this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.raw - ${color.whiteBright(err)}`) : void 0;
+            }
+        };
+    }
+    runCommand(command) {
         let ret;
+        for (let ws of this.wss.clients) {
+            if (ws.readyState !== WebSocket.OPEN) return;
+            try {
+                if (typeof command === 'string') {
+                    ret = crypto.randomUUID({ disableEntropyCache: true })
+                    ws.send(JSON.stringify({
+                        header: {
+                            version: this.options.command_version,
+                            requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                            messageType: 'commandRequest',
+                            messagePurpose: 'commandRequest'
+                        },
+                        body: {
+                            commandLine: command,
+                            origin: {
+                                type: 'player'
+                            }
+                        }
+                    }))
+                } else if (Array.isArray(command)) {
+                    ret = []
+                    for (let cmd of command) {
+                        if (typeof cmd !== 'undefined') {
+                            let id = crypto.randomUUID({ disableEntropyCache: true })
+                            ws.send(JSON.stringify({
+                                header: {
+                                    version: this.options.command_version,
+                                    requestId: id,
+                                    messageType: 'commandRequest',
+                                    messagePurpose: 'commandRequest',
+                                },
+                                body: {
+                                    commandLine: cmd,
+                                    origin: {
+                                        type: 'player'
+                                    }
+                                }
+                            }))
+                            ret.push(id)
+                        }
+                    }
+                } else {
+                    console.log(`${tags.error} - APIInstance.runCommand - Command input must be either an Array or String.`)
+                }
+            } catch (err) {
+                this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.runCommand - ${color.whiteBright(err)}`) : void 0;
+            }
+        }
+        return ret;
+    }
+    runCommandForOneClient(ws, command) {
+        let ret;
+        if (ws.readyState !== WebSocket.OPEN) return;
         try {
             if (typeof command === 'string') {
                 ret = crypto.randomUUID({ disableEntropyCache: true })
@@ -183,7 +269,6 @@ class APIInstance {
                         }
                     }
                 }))
-                return ret
             } else if (Array.isArray(command)) {
                 ret = []
                 for (let cmd of command) {
@@ -207,25 +292,71 @@ class APIInstance {
                     }
                 }
             } else {
-                console.log(`${tags.error} - APIInstance.runCommand - Command input must be either an Array or String.`)
-                return ''
+                console.log(`${tags.error} - APIInstance.runCommandForOneClient - Command input must be either an Array or String.`)
             }
-            return ret
         } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.runCommand - ${color.whiteBright(err)}`) : void 0;
-            return ''
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.runCommandForOneClient - ${color.whiteBright(err)}`) : void 0;
         }
+        return ret;
     }
-    async runCommandAsync(ws, command, timeout = 10000) {
-        let waitForCommandResponse = () => {
+    async runCommandAsync(command) {
+        let final = [];
+        for (let ws of this.wss.clients) {
+            if (ws.readyState !== WebSocket.OPEN) continue;
+            let wait = () => {
+                return new Promise((resolve, reject) => {
+                    let timer = setTimeout(() => {
+                        ws.off('message', handler);
+                        this.options.log_internal_errors
+                            ? reject(new Error(`${tags.error} - Timed out waiting for commandResponse!`))
+                            : reject();
+                    }, 10000);
+                    function handler(data) {
+                        let msg;
+                        try {
+                            msg = JSON.parse(data);
+                        } catch {
+                            return;
+                        }
+                        if (msg?.header?.messagePurpose === 'commandResponse') {
+                            clearTimeout(timer);
+                            ws.off('message', handler);
+                            resolve(msg);
+                        }
+                    }
+                    ws.on('message', handler);
+                });
+            };
+            if (typeof command === 'string') {
+                this.runCommandForOneClient(ws, command);
+                let result = await wait();
+                final.push(result);
+            } else if (Array.isArray(command)) {
+                let results = [];
+                for (let cmd of command) {
+                    if (typeof cmd !== 'string') continue;
+                    this.runCommandForOneClient(ws, cmd);
+                    let result = await wait();
+                    results.push(result);
+                }
+                final.push(results);
+            } else {
+                console.log(`${tags.error} - APIInstance.runCommandAsync - Command input must be either an Array or String.`);
+                continue
+            }
+        }
+        return final;
+    }
+    async runCommandAsyncForOneClient(ws, command) {
+        if (ws.readyState !== WebSocket.OPEN) return;
+        let wait = () => {
             return new Promise((resolve, reject) => {
                 let timer = setTimeout(() => {
                     ws.off('message', handler);
                     this.options.log_internal_errors
-                        ? reject(new Error(`${tags.error} - Timed out waiting for commandResponse!`))
+                        ? reject(new Error(`${tags.error} - APIInstance.runCommandAsyncForOneClient - Timed out waiting for commandResponse!`))
                         : reject();
-                }, timeout);
-
+                }, 10000);
                 function handler(data) {
                     let msg;
                     try {
@@ -233,37 +364,80 @@ class APIInstance {
                     } catch {
                         return;
                     }
-
                     if (msg?.header?.messagePurpose === 'commandResponse') {
                         clearTimeout(timer);
                         ws.off('message', handler);
                         resolve(msg);
                     }
                 }
-
                 ws.on('message', handler);
             });
         };
-
         if (typeof command === 'string') {
-            this.runCommand(ws, command);
-            let result = await waitForCommandResponse();
+            this.runCommandForOneClient(ws, command);
+            let result = await wait();
             return result;
         } else if (Array.isArray(command)) {
             let results = [];
             for (let cmd of command) {
                 if (typeof cmd !== 'string') continue;
-                this.runCommand(ws, cmd);
-                let result = await waitForCommandResponse();
+                this.runCommandForOneClient(ws, cmd);
+                let result = await wait();
                 results.push(result);
             }
             return results;
         } else {
-            console.log(`${tags.error} - APIInstance.runCommandAsync - Command input must be either an Array or String.`);
+            console.log(`${tags.error} - APIInstance.runCommandAsyncForOneClient - Command input must be either an Array or String.`);
             return;
         }
     }
 }
+class AfterEventSignal {
+    #internalName;
+    #callbacks = new Set();
+    #apiInstance;
+    constructor(internalName, apiInstance=new APIInstance()) {
+        this.#internalName = internalName;
+        this.#apiInstance = apiInstance;
+        this.a = (raw, cb) => {
+            let msg = JSON.parse(raw.toString())
+            if (msg.header.eventName === this.#internalName || msg.body.eventName === this.#internalName) {
+                cb(msg);
+            } else return;
+        }
+    }
+    subscribe(callback) {
+        this.#callbacks.add(callback);
+        if (this.#callbacks.size === 1) {
+            this.#apiInstance.subscribeCustom(this.#internalName);
+            this.#apiInstance.wss.clients.forEach(ws => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    try {
+                        ws.on('message', raw => this.a(raw, callback))
+                    } catch (err) {
+                        this.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.subscribe - ${color.whiteBright(err)}`) : void 0;
+                    }
+                }
+            })
+        }
+    }
+    unsubscribe(callback) {
+        this.#callbacks.delete(callback);
+        if (this.#callbacks.size === 0) {
+            this.#apiInstance.unsubscribeCustom(this.#internalName);
+            this.#apiInstance.wss.clients.forEach(ws => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    try {
+                        ws.off('message', raw => this.a(raw, callback))
+                    } catch (err) {
+                        this.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.unsubscribe - ${color.whiteBright(err)}`) : void 0;
+                    }
+                }
+            })
+        }
+    }
+}
 module.exports = {
-    APIInstance
+    APIInstance,
+    AfterEventSignal
 }
