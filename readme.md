@@ -11,12 +11,18 @@ jocopa3 (for the initial event list)
 ### Notes
 - if i find anything new, i'll add it to this package ig
 
+### Instalation
+Simply run this in your command line:
+```batch
+npm i mcwss-api@latest
+```
+
 # Example
 ```javascript
 let { APIInstance } = require('mcwss-api')
 
 let api = new APIInstance();
-api.start(8080, '127.0.0.1', {
+api.start(8080, 'localhost', {
     // logging
     log_command_errors : true , // log command syntax errors into console
     log_command_output : false, // log command outputs into console

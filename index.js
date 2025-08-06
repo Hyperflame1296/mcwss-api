@@ -22,7 +22,7 @@ class APIInstance {
         playerBounce: new AfterEventSignal('PlayerBounced', this),
         entitySpawn: new AfterEventSignal('EntitySpawned', this),
         itemCompleteUse: new AfterEventSignal('ItemUsed', this),
-        itemInteract: new AfterEventSignal('ItemInteracted', this),
+        itemUse: new AfterEventSignal('ItemInteracted', this),
         playerEquipItem: new AfterEventSignal('ItemEquipped', this),
         playerAcquireItem: new AfterEventSignal('ItemAcquired', this),
         playerDropItem: new AfterEventSignal('ItemDropped', this),
@@ -31,7 +31,8 @@ class APIInstance {
         playerPlaceBlock: new AfterEventSignal('BlockPlaced', this),
         playerBreakBlock: new AfterEventSignal('BlockBroken', this),
         playerKillEntity: new AfterEventSignal('MobKilled', this),
-        playerInteractWithEntity: new AfterEventSignal('MobInteracted', this)
+        playerInteractWithEntity: new AfterEventSignal('MobInteracted', this),
+        targetBlockHit: new AfterEventSignal('TargetBlockHit', this)
     }
     constructor() {}
     // methods
@@ -402,20 +403,30 @@ class AfterEventSignal {
         this.a = (raw, cb) => {
             let msg = JSON.parse(raw.toString())
             if (msg.header.eventName === this.#internalName || msg.body.eventName === this.#internalName) {
-                cb(msg);
+                cb(msg.body, raw);
             } else return;
         }
     }
     subscribe(callback) {
         this.#callbacks.add(callback);
         if (this.#callbacks.size === 1) {
-            this.#apiInstance.subscribeCustom(this.#internalName);
             this.#apiInstance.wss.clients.forEach(ws => {
                 if (ws.readyState === WebSocket.OPEN) {
                     try {
+                        ws.send(JSON.stringify({
+                            header: {
+                                version: this.#apiInstance.options.command_version,
+                                requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                                messageType: 'commandRequest',
+                                messagePurpose: 'subscribe',
+                            },
+                            body: {
+                                eventName: this.#internalName
+                            }
+                        }))
                         ws.on('message', raw => this.a(raw, callback))
                     } catch (err) {
-                        this.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.subscribe - ${color.whiteBright(err)}`) : void 0;
+                        this.#apiInstance.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.subscribe - ${color.whiteBright(err)}`) : void 0;
                     }
                 }
             })
@@ -424,13 +435,23 @@ class AfterEventSignal {
     unsubscribe(callback) {
         this.#callbacks.delete(callback);
         if (this.#callbacks.size === 0) {
-            this.#apiInstance.unsubscribeCustom(this.#internalName);
             this.#apiInstance.wss.clients.forEach(ws => {
                 if (ws.readyState === WebSocket.OPEN) {
                     try {
+                        ws.send(JSON.stringify({
+                            header: {
+                                version: this.#apiInstance.command_version,
+                                requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                                messageType: 'commandRequest',
+                                messagePurpose: 'unsubscribe',
+                            },
+                            body: {
+                                eventName: this.#internalName
+                            }
+                        }))
                         ws.off('message', raw => this.a(raw, callback))
                     } catch (err) {
-                        this.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.unsubscribe - ${color.whiteBright(err)}`) : void 0;
+                        this.#apiInstance.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.unsubscribe - ${color.whiteBright(err)}`) : void 0;
                     }
                 }
             })

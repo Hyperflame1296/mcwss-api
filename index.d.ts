@@ -102,255 +102,128 @@ declare module 'mcwss-api' {
         variant: number
         yRot: number
     }
-    /** An in-game event. */
-    interface Event {
-        body: object
-        header: object
+    interface ChatSendAfterEvent {
+        message: string
+        receiver: string
+        sender: string
+        type: string
     }
-    interface ChatSendAfterEvent extends Event {
-        body: {
-            message: string
-            receiver: string
-            sender: string
-            type: string
-        }
-        header: {
-            eventName: 'PlayerMessage'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerMoveAfterEvent {
+        isUnderwater: boolean
+        metersTravelled: number
+        newBiome: number
+        player: Player
+        travelMethod: number
     }
-    interface PlayerMoveAfterEvent extends Event {
-        body: {
-            isUnderwater: boolean
-            metersTravelled: number
-            newBiome: number
-            player: Player
-            travelMethod: number
-        }
-        header: {
-            eventName: 'PlayerTravelled'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerTransformAfterEvent {
+        player: Player
     }
-    interface PlayerTransformAfterEvent extends Event {
-        body: {
-            player: Player
-        }
-        header: {
-            eventName: 'PlayerTransform'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerTeleportAfterEvent {
+        cause: number,
+        itemType: number
+        metersTravelled: number
+        player: Player
     }
-    interface PlayerTeleportAfterEvent extends Event {
-        body: {
-            cause: number,
-            itemType: number
-            metersTravelled: number
-            player: Player
-        }
-        header: {
-            eventName: 'PlayerTeleported'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerDieAfterEvent {
+        cause: number
+        inRaid: boolean
+        killer: Entity
+        player: Player
     }
-    interface PlayerDieAfterEvent extends Event {
-        body: {
-            cause: number
-            inRaid: boolean
-            killer: Entity
-            player: Player
-        }
-        header: {
-            eventName: 'PlayerDied'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerBounceAfterEvent {
+        block: Block
+        bounceHeight: number
+        player: Player
     }
-    interface PlayerBounceAfterEvent extends Event {
-        body: {
-            block: Block
-            bounceHeight: number
-            player: Player
-        }
-        header: {
-            eventName: 'PlayerBounced'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface EntitySpawnAfterEvent {
+        mob: EntitySingle
+        player: Player
+        spawnType: number
     }
-    interface EntitySpawnAfterEvent extends Event {
-        body: {
-            mob: EntitySingle
-            player: Player
-            spawnType: number
-        }
-        header: {
-            eventName: 'EntitySpawned'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface ItemCompleteUseAfterEvent {
+        count: number
+        item: Item
+        player: Player
+        useMethod: number
     }
-    interface ItemCompleteUseAfterEvent extends Event {
-        body: {
-            count: number
-            item: Item
-            player: Player
-            useMethod: number
-        }
-        header: {
-            eventName: 'ItemUsed'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface ItemInteractAfterEvent {
+        count: number
+        item: ItemAdvanced
+        method: number
+        player: Player
+        slot: number
     }
-    interface ItemInteractAfterEvent extends Event {
-        body: {
-            count: number
-            item: ItemAdvanced
-            method: number
-            player: Player
-            slot: number
-        }
-        header: {
-            eventName: 'ItemInteracted'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerEquipItemAfterEvent {
+        item: ItemAdvanced
+        player: Player
+        slot: number
     }
-    interface PlayerEquipItemAfterEvent extends Event {
-        body: {
-            item: ItemAdvanced
-            player: Player
-            slot: number
-        }
-        header: {
-            eventName: 'ItemEquipped'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerAcquireItemAfterEvent {
+        acquisitionMethodId: number
+        count: number
+        item: Item
+        player: Player
     }
-    interface PlayerAcquireItemAfterEvent extends Event {
-        body: {
-            acquisitionMethodId: number
-            count: number
-            item: Item
-            player: Player
-        }
-        header: {
-            eventName: 'ItemAcquired'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerDropItemAfterEvent {
+        count: number
+        item: Item
+        player: Player
     }
-    interface PlayerDropItemAfterEvent extends Event {
-        body: {
-            count: number
-            item: Item
-            player: Player
-        }
-        header: {
-            eventName: 'ItemDropped'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerAcquireSmeltedItemAfterEvent {
+        fuelSource: Item
+        item: ItemAdvanced
+        player: Player
     }
-    interface PlayerAcquireSmeltedItemAfterEvent extends Event {
-        body: {
-            fuelSource: Item
-            item: ItemAdvanced
-            player: Player
-        }
-        header: {
-            eventName: 'ItemSmelted'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerCraftItemAfterEvent {
+        count: number
+        craftedAutomatically: boolean
+        endingTabId: number
+        hasCraftableFilterOn: boolean
+        item: ItemAdvanced
+        numberOfTabsChanged: number
+        player: Player
+        recipeBookShown: boolean
+        startingTabId: number
+        usedCraftingTable: boolean
+        usedSearchBar: boolean
     }
-    interface PlayerCraftItemAfterEvent extends Event {
-        body: {
-            count: number
-            craftedAutomatically: boolean
-            endingTabId: number
-            hasCraftableFilterOn: boolean
-            item: ItemAdvanced
-            numberOfTabsChanged: number
-            player: Player
-            recipeBookShown: boolean
-            startingTabId: number
-            usedCraftingTable: boolean
-            usedSearchBar: boolean
-        }
-        header: {
-            eventName: 'ItemCrafted'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerPlaceBlockAfterEvent {
+        block: Block
+        count: number
+        placedUnderWater: boolean
+        placementMethod: number
+        player: Player
+        tool: ItemAdvanced
     }
-    interface PlayerPlaceBlockAfterEvent extends Event {
-        body: {
-            block: Block
-            count: number
-            placedUnderWater: boolean
-            placementMethod: number
-            player: Player
-            tool: ItemAdvanced
-        }
-        header: {
-            eventName: 'BlockPlaced'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerBreakBlockAfterEvent {
+        block: Block
+        count: number
+        destructionMethod: number
+        player: Player
+        tool: ItemAdvanced
+        variant: number
     }
-    interface PlayerBreakBlockAfterEvent extends Event {
-        body: {
-            block: Block
-            count: number
-            destructionMethod: number
-            player: Player
-            tool: ItemAdvanced
-            variant: number
-        }
-        header: {
-            eventName: 'BlockBroken'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerKillEntityAfterEvent {
+        armorBody: ItemAdvanced
+        armorFeet: ItemAdvanced
+        armorHead: ItemAdvanced
+        armorLegs: ItemAdvanced
+        armorTorso: ItemAdvanced
+        isMonster: boolean
+        killMethodType: number
+        player: Player
+        playerIsHiddenFrom: boolean
+        victim: EntityAdvanced
+        weapon: ItemAdvanced
     }
-    interface PlayerKillEntityAfterEvent extends Event {
-        body: {
-            armorBody: ItemAdvanced
-            armorFeet: ItemAdvanced
-            armorHead: ItemAdvanced
-            armorLegs: ItemAdvanced
-            armorTorso: ItemAdvanced
-            isMonster: boolean
-            killMethodType: number
-            player: Player
-            playerIsHiddenFrom: boolean
-            victim: EntityAdvanced
-            weapon: ItemAdvanced
-        }
-        header: {
-            eventName: 'MobKilled'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface PlayerInteractWithEntityAfterEvent {
+        interactionType: number
+        mob: Entity
+        player: Player
     }
-    interface PlayerInteractWithEntityAfterEvent extends Event {
-        body: {
-            interactionType: number
-            mob: Entity
-            player: Player
-            }
-        header: {
-            eventName: 'MobInteracted'
-            messagePurpose: 'event'
-            version: number
-        }
+    interface TargetBlockHitAfterEvent {
+        player: Player
+        redstoneLevel: number
     }
     interface APIOptions {
         /** 
@@ -520,6 +393,10 @@ declare module 'mcwss-api' {
         public subscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
         public unsubscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
     }
+    class TargetBlockHitAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: TargetBlockHitAfterEvent) => void): void
+        public unsubscribe(callback: (msg: TargetBlockHitAfterEvent) => void): void
+    }
     class AfterEventSignal {
         private #internalName: EventType
         private #callbacks: ((msg: any) => void)[]
@@ -561,7 +438,9 @@ declare module 'mcwss-api' {
         PlayerBreakBlockAfterEvent,
         PlayerKillEntityAfterEvent,
         PlayerInteractWithEntityAfterEvent,
+        TargetBlockHitAfterEvent,
         // event signals
+        AfterEventSignal,
         ChatSendAfterEventSignal,
         PlayerMoveAfterEventSignal,
         PlayerTransformAfterEventSignal,
@@ -580,6 +459,7 @@ declare module 'mcwss-api' {
         PlayerBreakBlockAfterEventSignal,
         PlayerKillEntityAfterEventSignal,
         PlayerInteractWithEntityAfterEventSignal,
+        TargetBlockHitAfterEventSignal,
         // classes
         APIOptions,
         APIInstance,
