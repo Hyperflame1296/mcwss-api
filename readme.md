@@ -132,9 +132,8 @@ The options for the package.
 ### afterEvents
 All of the available event signals that you can subscribe to.
 
-# Events
-These are all of the events that worked when I tested them.
-- you can figure out the JSON that these return, i'm too lazy to write that lol
+# Internal Event Names
+These are all of the events that are wrapped and renamed in the `afterEvents` object.
 - Most of these only work for whatever client is connected to the wss (the host in most cases), so maybe test it first before you get too excited!
 
 ### PlayerMessage
