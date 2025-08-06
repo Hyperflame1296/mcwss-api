@@ -34,9 +34,9 @@ api.start(8080, 'localhost', {
 
 api.wss.on('connection', ws => {
     api.afterEvents.chatSend.subscribe(msg => {
-        if (msg.body.type !== 'say') { // to prevent an infinite loop
+        if (msg.type !== 'say') { // to prevent an infinite loop
             console.log(msg) // logs any PlayerMessage event that goes through
-            api.runCommand(`say ${msg.body.message}`) // send the message back with /say!
+            api.runCommand(`say ${msg.message}`) // send the message back with /say!
         }
     })
 });
