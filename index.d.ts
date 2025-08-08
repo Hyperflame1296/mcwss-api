@@ -279,9 +279,9 @@ declare module 'mcwss-api' {
             */
             public async getAll(): Promise<BlockType[] | BlockType[][]>;
             /** 
-                * Get all available block types for a specific client connected to the WSS.
+                * Get all available block types for one client connected to the WSS.
             */
-            public async getAllForOneClient(ws: WebSocket): Promise<BlockType[]>;
+            public async getAllForOne(ws: WebSocket): Promise<BlockType[]>;
         }
         ItemTypes: {
             /** 
@@ -289,9 +289,9 @@ declare module 'mcwss-api' {
             */
             public async getAll(): Promise<ItemType[] | ItemType[][]>;
             /** 
-                * Get all available item types for a specific client connected to the WSS.
+                * Get all available item types for one client connected to the WSS.
             */
-            public async getAllForOneClient(ws: WebSocket): Promise<ItemType[]>;
+            public async getAllForOne(ws: WebSocket): Promise<ItemType[]>;
         }
         EntityTypes: {
             /** 
@@ -299,9 +299,9 @@ declare module 'mcwss-api' {
              */
             public async getAll(): Promise<EntityType[] | EntityType[][]>;
             /** 
-                * Get all available entity types for a specific client connected to the WSS.
+                * Get all available entity types for one client connected to the WSS.
             */
-            public async getAllForOneClient(ws: WebSocket): Promise<EntityType[]>;
+            public async getAllForOne(ws: WebSocket): Promise<EntityType[]>;
         }
         /** The WebSocket server, if initialized. */
         public wss: WebSocketServer | undefined
@@ -331,14 +331,22 @@ declare module 'mcwss-api' {
         public start(port: number, host: string, options: APIOptions): void
         /** Stop the WebSocket server. */
         public stop(): void
-        /** Subscribe to an custom event type, to listen for for any event that isn't in the Events section. */
-        public subscribeCustom(ws: WebSocket, eventType: EventType): void
-        /** Unsubscribe to an custom event type, to stop listening for any event that isn't in the Events section. */
-        public unsubscribeCustom(ws: WebSocket, eventType: EventType): void
-        /** Listen for a specified event purpose. */
-        public onPurpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): Function
-        /** Stop listening for a specified event purpose. */
-        public offPurpose(ws: WebSocket, cb: (msg: object) => void): void
+        /** Subscribe to an custom event type for all clients, to listen for for any event that isn't in the Events section. */
+        public subscribeCustom(eventType: EventType): void
+        /** Unsubscribe to an custom event type for all clients, to stop listening for any event that isn't in the Events section. */
+        public unsubscribeCustom(eventType: EventType): void
+        /** Subscribe to an custom event type for one client, to listen for for any event that isn't in the Events section. */
+        public subscribeCustomForOne(ws: WebSocket, eventType: EventType): void
+        /** Unsubscribe to an custom event type for one client, to stop listening for any event that isn't in the Events section. */
+        public unsubscribeCustomForOne(ws: WebSocket, eventType: EventType): void
+        /** Listen for a specified event purpose on all clients' ends. */
+        public onPurpose(purpose: MessagePurpose, cb: (msg: object) => void): Function
+        /** Stop listening for a specified event purpose on all clients' ends. */
+        public offPurpose(cb: (msg: object) => void): void
+        /** Listen for a specified event purpose on a single client's end. */
+        public onPurposeForOne(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): Function
+        /** Stop listening for a specified event purpose a single client's end. */
+        public offPurposeForOne(ws: WebSocket, cb: (msg: object) => void): void
         /** 
             * Execute an in-game command for all clients connected to the WSS.
             * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
@@ -352,21 +360,25 @@ declare module 'mcwss-api' {
         */
         public async runCommandAsync(command: string | string[]): Promise<object[]>;
         /** 
-            * Execute an in-game command for a specific client connected to the WSS.
+            * Execute an in-game command for one client connected to the WSS.
             * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
             * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
         */
-        public runCommandForOneClient(ws: WebSocket, command: string | string[]): string | string[];
+        public runCommandForOne(ws: WebSocket, command: string | string[]): string | string[];
         /** 
-            * Execute an in-game command for a specific client connected to the WSS, and wait for a response.  
+            * Execute an in-game command for one client connected to the WSS, and wait for a response.  
             * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
             * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
         */
-        public async runCommandAsyncForOneClient(ws: WebSocket, command: string | string[]): Promise<object | object[]>;
-        /** Send JSON data to a client. */
-        public send(ws: WebSocket, json: object): void
-        /** Send raw string/buffer data to a client. */
-        public raw(ws: WebSocket, raw: string | ArrayBufferLike): void
+        public async runCommandAsyncForOne(ws: WebSocket, command: string | string[]): Promise<object | object[]>;
+        /** Send JSON data to all clients. */
+        public send(json: object): void
+        /** Send raw string/buffer data to all clients. */
+        public raw(raw: string | ArrayBufferLike): void
+        /** Send JSON data to one client. */
+        public sendForOne(ws: WebSocket, json: object): void
+        /** Send raw string/buffer data to one client. */
+        public rawForOne(ws: WebSocket, raw: string | ArrayBufferLike): void
     }
     class ChatSendAfterEventSignal extends AfterEventSignal {
         public subscribe(callback: (msg: ChatSendAfterEvent) => void): void

@@ -44,6 +44,127 @@ api.wss.on('connection', ws => {
 
 # Methods
 
+### BlockTypes.getAll
+Get all available block types for all clients connected to the WSS.
+```javascript
+await api.BlockTypes.getAll()
+```
+
+### BlockTypes.getAllForOne
+Get all available block types for one client connected to the WSS.
+```javascript
+await api.BlockTypes.getAllForOne()
+```
+
+### ItemTypes.getAll
+Get all available item types for all clients connected to the WSS.
+```javascript
+await api.ItemTypes.getAll()
+```
+
+### ItemTypes.getAllForOne
+Get all available block types for one client connected to the WSS.
+```javascript
+await api.ItemTypes.getAllForOne()
+```
+
+### EntityTypes.getAll
+Get all available entity types for all clients connected to the WSS.
+```javascript
+await api.EntityTypes.getAll()
+```
+
+### EntityTypes.getAllForOne
+Get all available block types for one client connected to the WSS.
+```javascript
+await api.EntityTypes.getAllForOne()
+```
+
+### start
+Start the server. 
+- This should work with any host that you own, or just localhost.
+```javascript
+api.start(port, host, opts)
+```
+
+### stop
+Stop the server.
+```javascript
+api.stop()
+```
+
+### send
+Send JSON data to all clients.
+```javascript
+api.send(json)
+```
+
+### raw
+Send raw buffer/string data to a client.
+```javascript
+api.raw(raw)
+```
+
+### sendForOne
+Send JSON data to one client.
+```javascript
+api.sendForOne(ws, json)
+```
+
+### rawForOne
+Send raw buffer/string data to one client.
+```javascript
+api.rawForOne(ws, raw)
+```
+
+### subscribeCustom
+Subscribe to an custom event type for all clients, to listen for events that aren't in the Events section.
+```javascript
+api.subscribeCustom(event_type)
+```
+
+### unsubscribeCustom
+Unsubscribe to an custom event type for all clients, to stop listening for events that aren't in the Events section.
+```javascript
+api.unsubscribeCustom(event_type)
+```
+
+### subscribeCustomForOne
+Subscribe to an custom event type for one client, to listen for events that aren't in the Events section.
+```javascript
+api.subscribeCustomForOne(ws, event_type)
+```
+
+### unsubscribeCustomForOne
+Unsubscribe to an custom event type for one client, to stop listening for events that aren't in the Events section.
+```javascript
+api.unsubscribeCustomForOne(ws, event_type)
+```
+
+### onPurpose
+Listen for a specified event purpose on all clients' ends.
+```javascript
+api.onPurpose(purpose, callback)
+```
+
+### offPurpose
+Stop listening for a specified event purpose on all clients' ends.
+```javascript
+api.offPurpose(purpose, callback)
+```
+
+### onPurposeForOne
+Listen for a specified event purpose on a single client's end.
+```javascript
+api.onPurposeForOne(ws, purpose, callback)
+```
+
+### offPurposeForOne
+Stop listening for a specified event purpose on a single client's end.
+```javascript
+api.offPurposeForOne(ws, purpose, callback)
+```
+
 ### runCommand
 Execute an in-game command for all clients connected to the WSS.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
@@ -60,69 +181,20 @@ Execute an in-game command for all clients connected to the WSS, and wait for a 
 await api.runCommandAsync(command)
 ```
 
-### runCommandForOneClient
-Execute an in-game command for a specific client connected to the WSS.
+### runCommandForOne
+Execute an in-game command for one client connected to the WSS.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
 - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
 ```javascript
-api.runCommandForOneClient(ws, command)
+api.runCommandForOne(ws, command)
 ```
 
-### runCommandAsyncForOneClient
-Execute an in-game command for a specific client connected to the WSS, and wait for a response.  
+### runCommandAsyncForOne
+Execute an in-game command for one client connected to the WSS, and wait for a response.  
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
 - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
 ```javascript
-await api.runCommandAsyncForOneClient(ws, command)
-```
-
-### start
-Start the server. 
-- This should work with any host that you own, or just localhost.
-```javascript
-api.start(port, host, opts)
-```
-
-### stop
-Stop the server.
-```javascript
-api.stop()
-```
-
-### subscribeCustom
-Subscribe to an custom event type, to listen for events that aren't in the Events section.
-```javascript
-api.subscribeCustom(event_type)
-```
-
-### unsubscribeCustom
-Unsubscribe to an custom event type, to stop listening for events that aren't in the Events section.
-```javascript
-api.unsubscribeCustom(event_type)
-```
-
-### onPurpose
-Listen for a specified event purpose.
-```javascript
-api.onPurpose(purpose, callback)
-```
-
-### offPurpose
-Stop listening for a specified event purpose.
-```javascript
-api.offPurpose(purpose, callback)
-```
-
-### send
-Send JSON data to a client.
-```javascript
-api.send(ws, json)
-```
-
-### raw
-Send raw buffer/string data to a client.
-```javascript
-api.raw(ws, raw)
+await api.runCommandAsyncForOne(ws, command)
 ```
 
 # Properties

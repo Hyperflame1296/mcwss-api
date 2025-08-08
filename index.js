@@ -92,7 +92,7 @@ class APIInstance {
 
             return final.length <= 1 ? final[0] : final;
         },
-        getAllForOneClient: async ws => {
+        getAllForOne: async ws => {
             if (ws.readyState !== WebSocket.OPEN) return;
 
             let requestId = crypto.randomUUID({ disableEntropyCache: true });
@@ -102,7 +102,7 @@ class APIInstance {
                     let timer = setTimeout(() => {
                         ws.off('message', handler);
                         this.options.log_internal_errors
-                            ? reject(new Error(`${tags.error} - APIInstance.BlockTypes.getAllForOneClient - Timed out waiting for block data response!`))
+                            ? reject(new Error(`${tags.error} - APIInstance.BlockTypes.getAllForOne - Timed out waiting for block data response!`))
                             : reject();
                     }, 10000);
 
@@ -135,7 +135,7 @@ class APIInstance {
                 }));
             } catch (err) {
                 if (this.options.log_internal_errors) {
-                    console.log(`${tags.error} - APIInstance.BlockTypes.getAllForOneClient - ${color.whiteBright(err)}`);
+                    console.log(`${tags.error} - APIInstance.BlockTypes.getAllForOne - ${color.whiteBright(err)}`);
                 }
                 return;
             }
@@ -202,7 +202,7 @@ class APIInstance {
 
             return final.length <= 1 ? final[0] : final;
         },
-        getAllForOneClient: async ws => {
+        getAllForOne: async ws => {
             if (ws.readyState !== WebSocket.OPEN) return;
 
             let requestId = crypto.randomUUID({ disableEntropyCache: true });
@@ -212,7 +212,7 @@ class APIInstance {
                     let timer = setTimeout(() => {
                         ws.off('message', handler);
                         this.options.log_internal_errors
-                            ? reject(new Error(`${tags.error} - APIInstance.ItemTypes.getAllForOneClient - Timed out waiting for item data response!`))
+                            ? reject(new Error(`${tags.error} - APIInstance.ItemTypes.getAllForOne - Timed out waiting for item data response!`))
                             : reject();
                     }, 10000);
 
@@ -245,7 +245,7 @@ class APIInstance {
                 }));
             } catch (err) {
                 if (this.options.log_internal_errors) {
-                    console.log(`${tags.error} - APIInstance.ItemTypes.getAllForOneClient - ${color.whiteBright(err)}`);
+                    console.log(`${tags.error} - APIInstance.ItemTypes.getAllForOne - ${color.whiteBright(err)}`);
                 }
                 return;
             }
@@ -312,7 +312,7 @@ class APIInstance {
 
             return final.length <= 1 ? final[0] : final;
         },
-        getAllForOneClient: async ws => {
+        getAllForOne: async ws => {
             if (ws.readyState !== WebSocket.OPEN) return;
 
             let requestId = crypto.randomUUID({ disableEntropyCache: true });
@@ -322,7 +322,7 @@ class APIInstance {
                     let timer = setTimeout(() => {
                         ws.off('message', handler);
                         this.options.log_internal_errors
-                            ? reject(new Error(`${tags.error} - APIInstance.EntityTypes.getAllForOneClient - Timed out waiting for mob data response!`))
+                            ? reject(new Error(`${tags.error} - APIInstance.EntityTypes.getAllForOne - Timed out waiting for mob data response!`))
                             : reject();
                     }, 10000);
 
@@ -355,7 +355,7 @@ class APIInstance {
                 }));
             } catch (err) {
                 if (this.options.log_internal_errors) {
-                    console.log(`${tags.error} - APIInstance.APIInstance.EntityTypes.getAllForOneClient - ${color.whiteBright(err)}`);
+                    console.log(`${tags.error} - APIInstance.APIInstance.EntityTypes.getAllForOne - ${color.whiteBright(err)}`);
                 }
                 return;
             }
@@ -468,6 +468,30 @@ class APIInstance {
             }
         }
     }
+    onPurposeForOne(ws, purpose, cb) {
+        if (ws.readyState !== WebSocket.OPEN) return;
+        try {
+            let a = raw => {
+                let msg = JSON.parse(raw.toString())
+                if (msg.header.messagePurpose === purpose) {
+                    cb(msg);
+                } else return;
+            }
+            ws.on('message', a)
+            return a;
+        } catch (err) {
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.onPurpose - ${color.whiteBright(err)}`) : void 0;
+        }
+    }
+    offPurposeForOne(ws, cb) {
+        if (ws.readyState !== WebSocket.OPEN) return;
+        try {
+            ws.off('message', cb)
+            return;
+        } catch (err) {
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.offPurpose - ${color.whiteBright(err)}`) : void 0;
+        }
+    }
     unsubscribeCustom(eventType) {
         for (let ws of this.wss.clients) {
             if (ws.readyState !== WebSocket.OPEN) return;
@@ -508,6 +532,42 @@ class APIInstance {
             }
         }
     }
+    unsubscribeCustomForOne(ws, eventType) {
+        if (ws.readyState !== WebSocket.OPEN) return;
+        try {
+            ws.send(JSON.stringify({
+                header: {
+                    version: this.options.command_version,
+                    requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                    messageType: 'commandRequest',
+                    messagePurpose: 'unsubscribe',
+                },
+                body: {
+                    eventName: eventType
+                }
+            }))
+        } catch (err) {
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.unsubscribeCustomForOne - ${color.whiteBright(err)}`) : void 0;
+        }
+    }
+    subscribeCustomForOne(ws, eventType) {
+        if (ws.readyState !== WebSocket.OPEN) return;
+        try {
+            ws.send(JSON.stringify({
+                header: {
+                    version: this.options.command_version,
+                    requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                    messageType: 'commandRequest',
+                    messagePurpose: 'subscribe',
+                },
+                body: {
+                    eventName: eventType
+                }
+            }))
+        } catch (err) {
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribeCustomForOne - ${color.whiteBright(err)}`) : void 0;
+        }
+    }
     send(json) {
         for (let ws of this.wss.clients) {
             if (ws.readyState !== WebSocket.OPEN) return;
@@ -527,6 +587,22 @@ class APIInstance {
                 this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.raw - ${color.whiteBright(err)}`) : void 0;
             }
         };
+    }
+    sendForOne(ws, json) {
+        if (ws.readyState !== WebSocket.OPEN) return;
+        try {
+            ws.send(JSON.stringify(json))
+        } catch (err) {
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.send - ${color.whiteBright(err)}`) : void 0;
+        }
+    }
+    rawForOne(ws, raw) {
+        if (ws.readyState !== WebSocket.OPEN) return;
+        try {
+            ws.send(raw)
+        } catch (err) {
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.raw - ${color.whiteBright(err)}`) : void 0;
+        }
     }
     runCommand(command) {
         let ret = []
@@ -582,7 +658,7 @@ class APIInstance {
         }
         return ret.length <= 1 ? ret[0] : ret.flat();
     }
-    runCommandForOneClient(ws, command) {
+    runCommandForOne(ws, command) {
         let ret;
         if (ws.readyState !== WebSocket.OPEN) return;
         try {
@@ -625,10 +701,10 @@ class APIInstance {
                     }
                 }
             } else {
-                console.log(`${tags.error} - APIInstance.runCommandForOneClient - Command input must be either an Array or String.`)
+                console.log(`${tags.error} - APIInstance.runCommandForOne - Command input must be either an Array or String.`)
             }
         } catch (err) {
-            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.runCommandForOneClient - ${color.whiteBright(err)}`) : void 0;
+            this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.runCommandForOne - ${color.whiteBright(err)}`) : void 0;
         }
         return ret;
     }
@@ -661,14 +737,14 @@ class APIInstance {
                 });
             };
             if (typeof command === 'string') {
-                let id = this.runCommandForOneClient(ws, command);
+                let id = this.runCommandForOne(ws, command);
                 let result = await wait(id);
                 final.push(result);
             } else if (Array.isArray(command)) {
                 let results = [];
                 for (let cmd of command) {
                     if (typeof cmd !== 'string') continue;
-                    let id = this.runCommandForOneClient(ws, cmd);
+                    let id = this.runCommandForOne(ws, cmd);
                     let result = await wait(id);
                     results.push(result);
                 }
@@ -680,14 +756,14 @@ class APIInstance {
         }
         return final.flat().length <= 1 ? final.flat()[0] : final.flat();
     }
-    async runCommandAsyncForOneClient(ws, command) {
+    async runCommandAsyncForOne(ws, command) {
         if (ws.readyState !== WebSocket.OPEN) return;
         let wait = id => {
             return new Promise((resolve, reject) => {
                 let timer = setTimeout(() => {
                     ws.off('message', handler);
                     this.options.log_internal_errors
-                        ? reject(new Error(`${tags.error} - APIInstance.runCommandAsyncForOneClient - Timed out waiting for commandResponse!`))
+                        ? reject(new Error(`${tags.error} - APIInstance.runCommandAsyncForOne - Timed out waiting for commandResponse!`))
                         : reject();
                 }, 10000);
                 function handler(data) {
@@ -707,20 +783,20 @@ class APIInstance {
             });
         };
         if (typeof command === 'string') {
-            let id = this.runCommandForOneClient(ws, command);
+            let id = this.runCommandForOne(ws, command);
             let result = await wait(id);
             return result;
         } else if (Array.isArray(command)) {
             let results = [];
             for (let cmd of command) {
                 if (typeof cmd !== 'string') continue;
-                let id = this.runCommandForOneClient(ws, cmd);
+                let id = this.runCommandForOne(ws, cmd);
                 let result = await wait(id);
                 results.push(result);
             }
             return results;
         } else {
-            console.log(`${tags.error} - APIInstance.runCommandAsyncForOneClient - Command input must be either an Array or String.`);
+            console.log(`${tags.error} - APIInstance.runCommandAsyncForOne - Command input must be either an Array or String.`);
             return;
         }
     }
