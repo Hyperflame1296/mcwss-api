@@ -35,7 +35,8 @@ declare module 'mcwss-api' {
         | 'data:telemetry'
         | 'data:tutorial'
         | 'action:agent'
-        | 'dataType'
+        | 'chat:subscribe'
+        | 'chat:unsubscribe'
         | 'ws:encrypt'
         | 'ws:encryptionRequest'
         | 'ws:encryptionResponse'
@@ -97,7 +98,7 @@ declare module 'mcwss-api' {
         yRot: number
     }
     /** A player, usually the person who triggered an event. */
-    interface Player extends EntityAdvanced {
+    interface Player {
         color: string
         dimension: number
         id: number
@@ -277,37 +278,37 @@ declare module 'mcwss-api' {
             /** 
                 * Get all available block types for all clients connected to the WSS.
             */
-            public async getAll(): Promise<BlockType[] | BlockType[][]>;
+            getAll(): Promise<BlockType[] | BlockType[][]>;
             /** 
                 * Get all available block types for one client connected to the WSS.
             */
-            public async getAllForOne(ws: WebSocket): Promise<BlockType[]>;
+            getAllForOne(ws: WebSocket): Promise<BlockType[]>;
         }
         ItemTypes: {
             /** 
                 * Get all available item types for all clients connected to the WSS.
             */
-            public async getAll(): Promise<ItemType[] | ItemType[][]>;
+            getAll(): Promise<ItemType[] | ItemType[][]>;
             /** 
                 * Get all available item types for one client connected to the WSS.
             */
-            public async getAllForOne(ws: WebSocket): Promise<ItemType[]>;
+            getAllForOne(ws: WebSocket): Promise<ItemType[]>;
         }
         EntityTypes: {
             /** 
                 * Get all available entity types for all clients connected to the WSS.
              */
-            public async getAll(): Promise<EntityType[] | EntityType[][]>;
+            getAll(): Promise<EntityType[] | EntityType[][]>;
             /** 
                 * Get all available entity types for one client connected to the WSS.
             */
-            public async getAllForOne(ws: WebSocket): Promise<EntityType[]>;
+            getAllForOne(ws: WebSocket): Promise<EntityType[]>;
         }
         /** The WebSocket server, if initialized. */
-        public wss: WebSocketServer | undefined
+        wss: WebSocketServer | undefined
         /** The options for the API. */
-        public options: APIOptions;
-        public afterEvents = {
+        options: APIOptions;
+        afterEvents: {
             chatSend: ChatSendAfterEventSignal,
             playerMove: PlayerMoveAfterEventSignal,
             playerTransform: PlayerTransformAfterEventSignal,
@@ -328,143 +329,143 @@ declare module 'mcwss-api' {
             playerInteractWithEntity: PlayerInteractWithEntityAfterEventSignal
         }
         /** Start the WebSocket server. */
-        public start(port: number, host: string, options: APIOptions): void
+        start(port: number, host: string, options: APIOptions): void
         /** Stop the WebSocket server. */
-        public stop(): void
+        stop(): void
         /** Subscribe to an custom event type for all clients, to listen for for any event that isn't in the Events section. */
-        public subscribeCustom(eventType: EventType): void
+        subscribeCustom(eventType: EventType): void
         /** Unsubscribe to an custom event type for all clients, to stop listening for any event that isn't in the Events section. */
-        public unsubscribeCustom(eventType: EventType): void
+        unsubscribeCustom(eventType: EventType): void
         /** Subscribe to an custom event type for one client, to listen for for any event that isn't in the Events section. */
-        public subscribeCustomForOne(ws: WebSocket, eventType: EventType): void
+        subscribeCustomForOne(ws: WebSocket, eventType: EventType): void
         /** Unsubscribe to an custom event type for one client, to stop listening for any event that isn't in the Events section. */
-        public unsubscribeCustomForOne(ws: WebSocket, eventType: EventType): void
+        unsubscribeCustomForOne(ws: WebSocket, eventType: EventType): void
         /** Listen for a specified event purpose on all clients' ends. */
-        public onPurpose(purpose: MessagePurpose, cb: (msg: object) => void): Function
+        onPurpose(purpose: MessagePurpose, cb: (msg: object) => void): Function
         /** Stop listening for a specified event purpose on all clients' ends. */
-        public offPurpose(cb: (msg: object) => void): void
+        offPurpose(cb: (msg: object) => void): void
         /** Listen for a specified event purpose on a single client's end. */
-        public onPurposeForOne(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): Function
+        onPurposeForOne(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): Function
         /** Stop listening for a specified event purpose a single client's end. */
-        public offPurposeForOne(ws: WebSocket, cb: (msg: object) => void): void
+        offPurposeForOne(ws: WebSocket, cb: (msg: object) => void): void
         /** 
             * Execute an in-game command for all clients connected to the WSS.
             * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
             * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
         */
-        public runCommand(command: string | string[]): string | string[];
+        runCommand(command: string | string[]): string | string[];
         /** 
             * Execute an in-game command for all clients connected to the WSS, and wait for a response.  
             * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
             * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
         */
-        public async runCommandAsync(command: string | string[]): Promise<object[]>;
+        runCommandAsync(command: string | string[]): Promise<object[]>;
         /** 
             * Execute an in-game command for one client connected to the WSS.
             * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
             * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
         */
-        public runCommandForOne(ws: WebSocket, command: string | string[]): string | string[];
+        runCommandForOne(ws: WebSocket, command: string | string[]): string | string[];
         /** 
             * Execute an in-game command for one client connected to the WSS, and wait for a response.  
             * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
             * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
         */
-        public async runCommandAsyncForOne(ws: WebSocket, command: string | string[]): Promise<object | object[]>;
+        runCommandAsyncForOne(ws: WebSocket, command: string | string[]): Promise<object | object[]>;
         /** Send JSON data to all clients. */
-        public send(json: object): void
+        send(json: object): void
         /** Send raw string/buffer data to all clients. */
-        public raw(raw: string | ArrayBufferLike): void
+        raw(raw: string | ArrayBufferLike): void
         /** Send JSON data to one client. */
-        public sendForOne(ws: WebSocket, json: object): void
+        sendForOne(ws: WebSocket, json: object): void
         /** Send raw string/buffer data to one client. */
-        public rawForOne(ws: WebSocket, raw: string | ArrayBufferLike): void
+        rawForOne(ws: WebSocket, raw: string | ArrayBufferLike): void
     }
     class ChatSendAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: ChatSendAfterEvent) => void): void
-        public unsubscribe(callback: (msg: ChatSendAfterEvent) => void): void
+        subscribe(callback: (msg: ChatSendAfterEvent) => void): void
+        unsubscribe(callback: (msg: ChatSendAfterEvent) => void): void
     }
     class PlayerMoveAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerMoveAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerMoveAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerMoveAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerMoveAfterEvent) => void): void
     }
     class PlayerTransformAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerTransformAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerTransformAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerTransformAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerTransformAfterEvent) => void): void
     }
     class PlayerTeleportAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerTeleportAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerTeleportAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerTeleportAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerTeleportAfterEvent) => void): void
     }
     class PlayerDieAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerDieAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerDieAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerDieAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerDieAfterEvent) => void): void
     }
     class PlayerBounceAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerBounceAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerBounceAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerBounceAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerBounceAfterEvent) => void): void
     }
     class EntitySpawnAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: EntitySpawnAfterEvent) => void): void
-        public unsubscribe(callback: (msg: EntitySpawnAfterEvent) => void): void
+        subscribe(callback: (msg: EntitySpawnAfterEvent) => void): void
+        unsubscribe(callback: (msg: EntitySpawnAfterEvent) => void): void
     }
     class ItemCompleteUseAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
-        public unsubscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
+        subscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
+        unsubscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
     }
     class ItemUseAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: ItemUseAfterEvent) => void): void
-        public unsubscribe(callback: (msg: ItemUseAfterEvent) => void): void
+        subscribe(callback: (msg: ItemUseAfterEvent) => void): void
+        unsubscribe(callback: (msg: ItemUseAfterEvent) => void): void
     }
     class PlayerEquipItemAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
     }
     class PlayerAcquireItemAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerAcquireItemAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerAcquireItemAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerAcquireItemAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerAcquireItemAfterEvent) => void): void
     }
     class PlayerDropItemAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerDropItemAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerDropItemAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerDropItemAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerDropItemAfterEvent) => void): void
     }
     class PlayerCraftItemAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerCraftItemAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerCraftItemAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerCraftItemAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerCraftItemAfterEvent) => void): void
     }
     class PlayerAcquireSmeltedItemAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerAcquireSmeltedItemAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerAcquireSmeltedItemAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerAcquireSmeltedItemAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerAcquireSmeltedItemAfterEvent) => void): void
     }
     class PlayerPlaceBlockAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerPlaceBlockAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerPlaceBlockAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerPlaceBlockAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerPlaceBlockAfterEvent) => void): void
     }
     class PlayerBreakBlockAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerBreakBlockAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerBreakBlockAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerBreakBlockAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerBreakBlockAfterEvent) => void): void
     }
     class PlayerKillEntityAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerKillEntityAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerKillEntityAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerKillEntityAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerKillEntityAfterEvent) => void): void
     }
     class PlayerInteractWithEntityAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
-        public unsubscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
+        subscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
+        unsubscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
     }
     class TargetBlockHitAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: TargetBlockHitAfterEvent) => void): void
-        public unsubscribe(callback: (msg: TargetBlockHitAfterEvent) => void): void
+        subscribe(callback: (msg: TargetBlockHitAfterEvent) => void): void
+        unsubscribe(callback: (msg: TargetBlockHitAfterEvent) => void): void
     }
     class AfterEventSignal {
-        private #internalName: EventType
-        private #callbacks: ((msg: any) => void)[]
-        private #apiInstance: APIInstance
-        constructor(internalName=EventType, apiInstance=APIInstance)
+        #internalName: EventType
+        #callbacks: ((msg: any) => void)[]
+        #apiInstance: APIInstance
+        constructor(internalName: EventType, apiInstance: APIInstance)
         /** Subscribe to the event signal. */
-        public subscribe(callback: (msg: any) => void): void
+        subscribe(callback: (msg: any) => void): void
         /** Unsubscribe from the event signal. */
-        public unsubscribe(callback: (msg: any) => void): void
+        unsubscribe(callback: (msg: any) => void): void
     }
     export {
         // interfaces & stuff

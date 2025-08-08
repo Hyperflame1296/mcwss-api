@@ -286,7 +286,8 @@ data:file
 data:telemetry
 data:tutorial
 action:agent
-dataType
+chat:subscribe
+chat:unsubscribe
 ws:encrypt
 ws:encryptionRequest
 ws:encryptionResponse
