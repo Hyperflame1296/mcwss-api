@@ -34,6 +34,336 @@ class APIInstance {
         playerInteractWithEntity: new AfterEventSignal('MobInteracted', this),
         targetBlockHit: new AfterEventSignal('TargetBlockHit', this)
     }
+    BlockTypes = {
+        getAll: async() => {
+            let final = [];
+
+            for (let ws of this.wss.clients) {
+                if (ws.readyState !== WebSocket.OPEN) continue;
+
+                let requestId = crypto.randomUUID({ disableEntropyCache: true });
+
+                let wait = id => {
+                    return new Promise((resolve, reject) => {
+                        let timer = setTimeout(() => {
+                            ws.off('message', handler);
+                            this.options.log_internal_errors
+                                ? reject(new Error(`${tags.error} - APIInstance.BlockTypes.getAll - Timed out waiting for block data response!`))
+                                : reject();
+                        }, 10000);
+
+                        function handler(data) {
+                            let msg;
+                            try {
+                                msg = JSON.parse(data);
+                            } catch {
+                                return;
+                            }
+
+                            if (msg?.header?.messagePurpose === 'data' && msg?.header?.dataType === 'block' && msg?.header?.requestId === id) {
+                                clearTimeout(timer);
+                                ws.off('message', handler);
+                                resolve(msg.body);
+                            }
+                        }
+
+                        ws.on('message', handler);
+                    });
+                };
+
+                try {
+                    ws.send(JSON.stringify({
+                        header: {
+                            version: this.options.command_version,
+                            requestId,
+                            messagePurpose: 'data:block'
+                        }
+                    }));
+                } catch (err) {
+                    if (this.options.log_internal_errors) {
+                        console.log(`${tags.error} - APIInstance.BlockTypes.getAll - ${color.whiteBright(err)}`);
+                    }
+                    continue;
+                }
+
+                let result = await wait(requestId);
+                final.push(result);
+            }
+
+            return final.length <= 1 ? final[0] : final;
+        },
+        getAllForOneClient: async ws => {
+            if (ws.readyState !== WebSocket.OPEN) return;
+
+            let requestId = crypto.randomUUID({ disableEntropyCache: true });
+
+            let wait = id => {
+                return new Promise((resolve, reject) => {
+                    let timer = setTimeout(() => {
+                        ws.off('message', handler);
+                        this.options.log_internal_errors
+                            ? reject(new Error(`${tags.error} - APIInstance.BlockTypes.getAllForOneClient - Timed out waiting for block data response!`))
+                            : reject();
+                    }, 10000);
+
+                    function handler(data) {
+                        let msg;
+                        try {
+                            msg = JSON.parse(data);
+                        } catch {
+                            return;
+                        }
+
+                        if (msg?.header?.messagePurpose === 'data' && msg?.header?.dataType === 'block' && msg?.header?.requestId === id) {
+                            clearTimeout(timer);
+                            ws.off('message', handler);
+                            resolve(msg.body);
+                        }
+                    }
+
+                    ws.on('message', handler);
+                });
+            };
+
+            try {
+                ws.send(JSON.stringify({
+                    header: {
+                        version: this.options.command_version,
+                        requestId,
+                        messagePurpose: 'data:block'
+                    }
+                }));
+            } catch (err) {
+                if (this.options.log_internal_errors) {
+                    console.log(`${tags.error} - APIInstance.BlockTypes.getAllForOneClient - ${color.whiteBright(err)}`);
+                }
+                return;
+            }
+
+            let result = await wait(requestId);
+            return result;
+        }
+    }
+    ItemTypes = {
+        getAll: async() => {
+            let final = [];
+
+            for (let ws of this.wss.clients) {
+                if (ws.readyState !== WebSocket.OPEN) continue;
+
+                let requestId = crypto.randomUUID({ disableEntropyCache: true });
+
+                let wait = id => {
+                    return new Promise((resolve, reject) => {
+                        let timer = setTimeout(() => {
+                            ws.off('message', handler);
+                            this.options.log_internal_errors
+                                ? reject(new Error(`${tags.error} - APIInstance.ItemTypes.getAll - Timed out waiting for item data response!`))
+                                : reject();
+                        }, 10000);
+
+                        function handler(data) {
+                            let msg;
+                            try {
+                                msg = JSON.parse(data);
+                            } catch {
+                                return;
+                            }
+
+                            if (msg?.header?.messagePurpose === 'data' && msg?.header?.dataType === 'item' && msg?.header?.requestId === id) {
+                                clearTimeout(timer);
+                                ws.off('message', handler);
+                                resolve(msg.body);
+                            }
+                        }
+
+                        ws.on('message', handler);
+                    });
+                };
+
+                try {
+                    ws.send(JSON.stringify({
+                        header: {
+                            version: this.options.command_version,
+                            requestId,
+                            messagePurpose: 'data:item'
+                        }
+                    }));
+                } catch (err) {
+                    if (this.options.log_internal_errors) {
+                        console.log(`${tags.error} - APIInstance.ItemTypes.getAll - ${color.whiteBright(err)}`);
+                    }
+                    continue;
+                }
+
+                let result = await wait(requestId);
+                final.push(result);
+            }
+
+            return final.length <= 1 ? final[0] : final;
+        },
+        getAllForOneClient: async ws => {
+            if (ws.readyState !== WebSocket.OPEN) return;
+
+            let requestId = crypto.randomUUID({ disableEntropyCache: true });
+
+            let wait = id => {
+                return new Promise((resolve, reject) => {
+                    let timer = setTimeout(() => {
+                        ws.off('message', handler);
+                        this.options.log_internal_errors
+                            ? reject(new Error(`${tags.error} - APIInstance.ItemTypes.getAllForOneClient - Timed out waiting for item data response!`))
+                            : reject();
+                    }, 10000);
+
+                    function handler(data) {
+                        let msg;
+                        try {
+                            msg = JSON.parse(data);
+                        } catch {
+                            return;
+                        }
+
+                        if (msg?.header?.messagePurpose === 'data' && msg?.header?.dataType === 'item' && msg?.header?.requestId === id) {
+                            clearTimeout(timer);
+                            ws.off('message', handler);
+                            resolve(msg.body);
+                        }
+                    }
+
+                    ws.on('message', handler);
+                });
+            };
+
+            try {
+                ws.send(JSON.stringify({
+                    header: {
+                        version: this.options.command_version,
+                        requestId,
+                        messagePurpose: 'data:item'
+                    }
+                }));
+            } catch (err) {
+                if (this.options.log_internal_errors) {
+                    console.log(`${tags.error} - APIInstance.ItemTypes.getAllForOneClient - ${color.whiteBright(err)}`);
+                }
+                return;
+            }
+
+            let result = await wait(requestId);
+            return result;
+        }
+    }
+    EntityTypes = {
+        getAll: async() => {
+            let final = [];
+
+            for (let ws of this.wss.clients) {
+                if (ws.readyState !== WebSocket.OPEN) continue;
+
+                let requestId = crypto.randomUUID({ disableEntropyCache: true });
+
+                let wait = id => {
+                    return new Promise((resolve, reject) => {
+                        let timer = setTimeout(() => {
+                            ws.off('message', handler);
+                            this.options.log_internal_errors
+                                ? reject(new Error(`${tags.error} - APIInstance.EntityTypes.getAll - Timed out waiting for mob data response!`))
+                                : reject();
+                        }, 10000);
+
+                        function handler(data) {
+                            let msg;
+                            try {
+                                msg = JSON.parse(data);
+                            } catch {
+                                return;
+                            }
+
+                            if (msg?.header?.messagePurpose === 'data' && msg?.header?.dataType === 'mob' && msg?.header?.requestId === id) {
+                                clearTimeout(timer);
+                                ws.off('message', handler);
+                                resolve(msg.body);
+                            }
+                        }
+
+                        ws.on('message', handler);
+                    });
+                };
+
+                try {
+                    ws.send(JSON.stringify({
+                        header: {
+                            version: this.options.command_version,
+                            requestId,
+                            messagePurpose: 'data:mob'
+                        }
+                    }));
+                } catch (err) {
+                    if (this.options.log_internal_errors) {
+                        console.log(`${tags.error} - APIInstance.EntityTypes.getAll - ${color.whiteBright(err)}`);
+                    }
+                    continue;
+                }
+
+                let result = await wait(requestId);
+                final.push(result);
+            }
+
+            return final.length <= 1 ? final[0] : final;
+        },
+        getAllForOneClient: async ws => {
+            if (ws.readyState !== WebSocket.OPEN) return;
+
+            let requestId = crypto.randomUUID({ disableEntropyCache: true });
+
+            let wait = id => {
+                return new Promise((resolve, reject) => {
+                    let timer = setTimeout(() => {
+                        ws.off('message', handler);
+                        this.options.log_internal_errors
+                            ? reject(new Error(`${tags.error} - APIInstance.EntityTypes.getAllForOneClient - Timed out waiting for mob data response!`))
+                            : reject();
+                    }, 10000);
+
+                    function handler(data) {
+                        let msg;
+                        try {
+                            msg = JSON.parse(data);
+                        } catch {
+                            return;
+                        }
+
+                        if (msg?.header?.messagePurpose === 'data' && msg?.header?.dataType === 'mob' && msg?.header?.requestId === id) {
+                            clearTimeout(timer);
+                            ws.off('message', handler);
+                            resolve(msg.body);
+                        }
+                    }
+
+                    ws.on('message', handler);
+                });
+            };
+
+            try {
+                ws.send(JSON.stringify({
+                    header: {
+                        version: this.options.command_version,
+                        requestId,
+                        messagePurpose: 'data:mob'
+                    }
+                }));
+            } catch (err) {
+                if (this.options.log_internal_errors) {
+                    console.log(`${tags.error} - APIInstance.APIInstance.EntityTypes.getAllForOneClient - ${color.whiteBright(err)}`);
+                }
+                return;
+            }
+
+            let result = await wait(requestId);
+            return result;
+        }
+    }
     constructor() {}
     // methods
     start(port, host, options) {
@@ -64,7 +394,7 @@ class APIInstance {
                                 }
                                 break;
                             case 'error': 
-                                this.options.log_message_errors ? console.log(`${tags.error} ${color.whiteBright('An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
+                                this.options.log_message_errors ? console.log(`${tags.error} ${color.whiteBright(msg.body.statusMessage ?? 'An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
                                 break;
                             default:
                                 break;
@@ -199,16 +529,16 @@ class APIInstance {
         };
     }
     runCommand(command) {
-        let ret;
+        let ret = []
         for (let ws of this.wss.clients) {
             if (ws.readyState !== WebSocket.OPEN) return;
             try {
                 if (typeof command === 'string') {
-                    ret = crypto.randomUUID({ disableEntropyCache: true })
+                    let id = crypto.randomUUID({ disableEntropyCache: true })
                     ws.send(JSON.stringify({
                         header: {
                             version: this.options.command_version,
-                            requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                            requestId: id,
                             messageType: 'commandRequest',
                             messagePurpose: 'commandRequest'
                         },
@@ -219,8 +549,9 @@ class APIInstance {
                             }
                         }
                     }))
+                    ret.push(id)
                 } else if (Array.isArray(command)) {
-                    ret = []
+                    let r = []
                     for (let cmd of command) {
                         if (typeof cmd !== 'undefined') {
                             let id = crypto.randomUUID({ disableEntropyCache: true })
@@ -238,9 +569,10 @@ class APIInstance {
                                     }
                                 }
                             }))
-                            ret.push(id)
+                            r.push(id)
                         }
                     }
+                    ret.push(r)
                 } else {
                     console.log(`${tags.error} - APIInstance.runCommand - Command input must be either an Array or String.`)
                 }
@@ -248,7 +580,7 @@ class APIInstance {
                 this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.runCommand - ${color.whiteBright(err)}`) : void 0;
             }
         }
-        return ret;
+        return ret.length <= 1 ? ret[0] : ret.flat();
     }
     runCommandForOneClient(ws, command) {
         let ret;
@@ -259,7 +591,7 @@ class APIInstance {
                 ws.send(JSON.stringify({
                     header: {
                         version: this.options.command_version,
-                        requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                        requestId: ret,
                         messageType: 'commandRequest',
                         messagePurpose: 'commandRequest'
                     },
@@ -304,12 +636,12 @@ class APIInstance {
         let final = [];
         for (let ws of this.wss.clients) {
             if (ws.readyState !== WebSocket.OPEN) continue;
-            let wait = () => {
+            let wait = id => {
                 return new Promise((resolve, reject) => {
                     let timer = setTimeout(() => {
                         ws.off('message', handler);
                         this.options.log_internal_errors
-                            ? reject(new Error(`${tags.error} - Timed out waiting for commandResponse!`))
+                            ? reject(new Error(`${tags.error} - APIInstance.runCommandAsync - Timed out waiting for commandResponse!`))
                             : reject();
                     }, 10000);
                     function handler(data) {
@@ -319,7 +651,7 @@ class APIInstance {
                         } catch {
                             return;
                         }
-                        if (msg?.header?.messagePurpose === 'commandResponse') {
+                        if (msg?.header?.messagePurpose === 'commandResponse' && msg?.header?.requestId === id) {
                             clearTimeout(timer);
                             ws.off('message', handler);
                             resolve(msg);
@@ -329,15 +661,15 @@ class APIInstance {
                 });
             };
             if (typeof command === 'string') {
-                this.runCommandForOneClient(ws, command);
-                let result = await wait();
+                let id = this.runCommandForOneClient(ws, command);
+                let result = await wait(id);
                 final.push(result);
             } else if (Array.isArray(command)) {
                 let results = [];
                 for (let cmd of command) {
                     if (typeof cmd !== 'string') continue;
-                    this.runCommandForOneClient(ws, cmd);
-                    let result = await wait();
+                    let id = this.runCommandForOneClient(ws, cmd);
+                    let result = await wait(id);
                     results.push(result);
                 }
                 final.push(results);
@@ -346,11 +678,11 @@ class APIInstance {
                 continue
             }
         }
-        return final;
+        return final.flat().length <= 1 ? final.flat()[0] : final.flat();
     }
     async runCommandAsyncForOneClient(ws, command) {
         if (ws.readyState !== WebSocket.OPEN) return;
-        let wait = () => {
+        let wait = id => {
             return new Promise((resolve, reject) => {
                 let timer = setTimeout(() => {
                     ws.off('message', handler);
@@ -365,7 +697,7 @@ class APIInstance {
                     } catch {
                         return;
                     }
-                    if (msg?.header?.messagePurpose === 'commandResponse') {
+                    if (msg?.header?.messagePurpose === 'commandResponse' && msg?.header?.requestId === id) {
                         clearTimeout(timer);
                         ws.off('message', handler);
                         resolve(msg);
@@ -375,15 +707,15 @@ class APIInstance {
             });
         };
         if (typeof command === 'string') {
-            this.runCommandForOneClient(ws, command);
-            let result = await wait();
+            let id = this.runCommandForOneClient(ws, command);
+            let result = await wait(id);
             return result;
         } else if (Array.isArray(command)) {
             let results = [];
             for (let cmd of command) {
                 if (typeof cmd !== 'string') continue;
-                this.runCommandForOneClient(ws, cmd);
-                let result = await wait();
+                let id = this.runCommandForOneClient(ws, cmd);
+                let result = await wait(id);
                 results.push(result);
             }
             return results;

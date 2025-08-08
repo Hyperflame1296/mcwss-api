@@ -11,7 +11,7 @@ jocopa3 (for the initial event list)
 ### Notes
 - if i find anything new, i'll add it to this package ig
 
-### Instalation
+### Installation
 Simply run this in your command line:
 ```batch
 npm i mcwss-api@latest
@@ -22,7 +22,7 @@ npm i mcwss-api@latest
 let { APIInstance } = require('mcwss-api')
 
 let api = new APIInstance();
-api.start(8080, 'localhost', {
+api.start(8080, '127.0.0.1', {
     // logging
     log_command_errors : true , // log command syntax errors into console
     log_command_output : false, // log command outputs into console
@@ -33,7 +33,7 @@ api.start(8080, 'localhost', {
 })
 
 api.wss.on('connection', ws => {
-    api.afterEvents.chatSend.subscribe(msg => {
+    api.afterEvents.chatSend.subscribe((msg, raw) => {
         if (msg.type !== 'say') { // to prevent an infinite loop
             console.log(msg) // logs any PlayerMessage event that goes through
             api.runCommand(`say ${msg.message}`) // send the message back with /say!
@@ -54,7 +54,6 @@ api.runCommand(command)
 
 ### runCommandAsync
 Execute an in-game command for all clients connected to the WSS, and wait for a response.  
-***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
 - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
 ```javascript
@@ -71,8 +70,6 @@ api.runCommandForOneClient(ws, command)
 
 ### runCommandAsyncForOneClient
 Execute an in-game command for a specific client connected to the WSS, and wait for a response.  
-***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
-
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
 - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
 ```javascript
@@ -207,11 +204,17 @@ subscribe
 unsubscribe
 event
 error
+networkRequest
 commandRequest
 commandResponse
 data:block
 data:item
 data:mob
+data:file
+data:telemetry
+data:tutorial
+action:agent
+dataType
 ws:encrypt
 ws:encryptionRequest
 ws:encryptionResponse

@@ -1,7 +1,7 @@
 let { APIInstance } = require('./index.js')
 
 let api = new APIInstance();
-api.start(8080, 'localhost', {
+api.start(8080, '127.0.0.1', {
     // logging
     log_command_errors : true , // log command syntax errors into console
     log_command_output : false, // log command outputs into console

@@ -25,13 +25,18 @@ declare module 'mcwss-api' {
         | 'unsubscribe'
         | 'event'
         | 'error'
+        | 'networkRequest'
         | 'commandRequest'
         | 'commandResponse'
-        | 'encrypt'
-        | 'data'
         | 'data:block'
         | 'data:item'
         | 'data:mob'
+        | 'data:file'
+        | 'data:telemetry'
+        | 'data:tutorial'
+        | 'action:agent'
+        | 'dataType'
+        | 'ws:encrypt'
         | 'ws:encryptionRequest'
         | 'ws:encryptionResponse'
 
@@ -146,7 +151,7 @@ declare module 'mcwss-api' {
         player: Player
         useMethod: number
     }
-    interface ItemInteractAfterEvent {
+    interface ItemUseAfterEvent {
         count: number
         item: ItemAdvanced
         method: number
@@ -225,6 +230,20 @@ declare module 'mcwss-api' {
         player: Player
         redstoneLevel: number
     }
+    interface BlockType {
+        aux: number,
+        id: string,
+        name: string
+    }
+    interface ItemType {
+        aux: number,
+        id: string,
+        name: string
+    }
+    interface EntityType {
+        id: string,
+        name: string
+    }
     interface APIOptions {
         /** 
             * Whether to log command syntax errors or not.
@@ -254,48 +273,36 @@ declare module 'mcwss-api' {
     }
     // classes
     class APIInstance {
-        /** Start the WebSocket server. */
-        public start(port: number, host: string, options: APIOptions): void
-        /** Stop the WebSocket server. */
-        public stop(): void
-        /** Subscribe to an custom event type, to listen for for any event that isn't in the Events section. */
-        public subscribeCustom(ws: WebSocket, eventType: EventType): void
-        /** Unsubscribe to an custom event type, to stop listening for any event that isn't in the Events section. */
-        public unsubscribeCustom(ws: WebSocket, eventType: EventType): void
-        /** Listen for a specified event purpose. */
-        public onPurpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): Function
-        /** Stop listening for a specified event purpose. */
-        public offPurpose(ws: WebSocket, cb: (msg: object) => void): void
-        /** 
-            * Execute an in-game command for a all clients connected to the WSS.
-            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
-            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
-        */
-        public runCommand(ws: WebSocket, command: string | string[]): string[] | string[][]
-        /** 
-            * Execute an in-game command for all clients connected to the WSS, and wait for a response.  
-            * ***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
-            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
-            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
-        */
-        public runCommandAsync(ws: WebSocket, command: string | string[]): Promise<object | object[]>[]
-        /** 
-            * Execute an in-game command for a specific client connected to the WSS.
-            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
-            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
-        */
-        public runCommandForOneClient(ws: WebSocket, command: string | string[]): string[] | string[][]
-        /** 
-            * Execute an in-game command for a specific connected to the WSS, and wait for a response.  
-            * ***WARNING!*** - This method could be unsafe because some commands can resolve the wrong responses.
-            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
-            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
-        */
-        public runCommandAsyncForOneClient(ws: WebSocket, command: string | string[]): Promise<object | object[]>[]
-        /** Send JSON data to a client. */
-        public send(ws: WebSocket, json: object): void
-        /** Send raw string/buffer data to a client. */
-        public raw(ws: WebSocket, raw: string | ArrayBufferLike): void
+        BlockTypes: {
+            /** 
+                * Get all available block types for all clients connected to the WSS.
+            */
+            public async getAll(): Promise<BlockType[] | BlockType[][]>;
+            /** 
+                * Get all available block types for a specific client connected to the WSS.
+            */
+            public async getAllForOneClient(ws: WebSocket): Promise<BlockType[]>;
+        }
+        ItemTypes: {
+            /** 
+                * Get all available item types for all clients connected to the WSS.
+            */
+            public async getAll(): Promise<ItemType[] | ItemType[][]>;
+            /** 
+                * Get all available item types for a specific client connected to the WSS.
+            */
+            public async getAllForOneClient(ws: WebSocket): Promise<ItemType[]>;
+        }
+        EntityTypes: {
+            /** 
+                * Get all available entity types for all clients connected to the WSS.
+             */
+            public async getAll(): Promise<EntityType[] | EntityType[][]>;
+            /** 
+                * Get all available entity types for a specific client connected to the WSS.
+            */
+            public async getAllForOneClient(ws: WebSocket): Promise<EntityType[]>;
+        }
         /** The WebSocket server, if initialized. */
         public wss: WebSocketServer | undefined
         /** The options for the API. */
@@ -309,7 +316,7 @@ declare module 'mcwss-api' {
             playerBounce: PlayerBounceAfterEventSignal,
             entitySpawn: EntitySpawnAfterEventSignal,
             itemCompleteUse: ItemCompleteUseAfterEventSignal,
-            itemInteract: ItemInteractAfterEventSignal,
+            ItemUse: ItemUseAfterEventSignal,
             playerEquipItem: PlayerEquipItemAfterEventSignal,
             playerAcquireItem: PlayerAcquireItemAfterEventSignal,
             playerDropItem: PlayerDropItemAfterEventSignal,
@@ -320,6 +327,46 @@ declare module 'mcwss-api' {
             playerKillEntity: PlayerKillEntityAfterEventSignal,
             playerInteractWithEntity: PlayerInteractWithEntityAfterEventSignal
         }
+        /** Start the WebSocket server. */
+        public start(port: number, host: string, options: APIOptions): void
+        /** Stop the WebSocket server. */
+        public stop(): void
+        /** Subscribe to an custom event type, to listen for for any event that isn't in the Events section. */
+        public subscribeCustom(ws: WebSocket, eventType: EventType): void
+        /** Unsubscribe to an custom event type, to stop listening for any event that isn't in the Events section. */
+        public unsubscribeCustom(ws: WebSocket, eventType: EventType): void
+        /** Listen for a specified event purpose. */
+        public onPurpose(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): Function
+        /** Stop listening for a specified event purpose. */
+        public offPurpose(ws: WebSocket, cb: (msg: object) => void): void
+        /** 
+            * Execute an in-game command for all clients connected to the WSS.
+            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+        */
+        public runCommand(command: string | string[]): string | string[];
+        /** 
+            * Execute an in-game command for all clients connected to the WSS, and wait for a response.  
+            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+        */
+        public async runCommandAsync(command: string | string[]): Promise<object[]>;
+        /** 
+            * Execute an in-game command for a specific client connected to the WSS.
+            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+        */
+        public runCommandForOneClient(ws: WebSocket, command: string | string[]): string | string[];
+        /** 
+            * Execute an in-game command for a specific client connected to the WSS, and wait for a response.  
+            * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
+            * - Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+        */
+        public async runCommandAsyncForOneClient(ws: WebSocket, command: string | string[]): Promise<object | object[]>;
+        /** Send JSON data to a client. */
+        public send(ws: WebSocket, json: object): void
+        /** Send raw string/buffer data to a client. */
+        public raw(ws: WebSocket, raw: string | ArrayBufferLike): void
     }
     class ChatSendAfterEventSignal extends AfterEventSignal {
         public subscribe(callback: (msg: ChatSendAfterEvent) => void): void
@@ -353,9 +400,9 @@ declare module 'mcwss-api' {
         public subscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
         public unsubscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
     }
-    class ItemInteractAfterEventSignal extends AfterEventSignal {
-        public subscribe(callback: (msg: ItemInteractAfterEvent) => void): void
-        public unsubscribe(callback: (msg: ItemInteractAfterEvent) => void): void
+    class ItemUseAfterEventSignal extends AfterEventSignal {
+        public subscribe(callback: (msg: ItemUseAfterEvent) => void): void
+        public unsubscribe(callback: (msg: ItemUseAfterEvent) => void): void
     }
     class PlayerEquipItemAfterEventSignal extends AfterEventSignal {
         public subscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
@@ -428,7 +475,7 @@ declare module 'mcwss-api' {
         PlayerBounceAfterEvent,
         EntitySpawnAfterEvent,
         ItemCompleteUseAfterEvent,
-        ItemInteractAfterEvent,
+        ItemUseAfterEvent,
         PlayerEquipItemAfterEvent,
         PlayerAcquireItemAfterEvent,
         PlayerDropItemAfterEvent,
@@ -449,7 +496,7 @@ declare module 'mcwss-api' {
         PlayerBounceAfterEventSignal,
         EntitySpawnAfterEventSignal,
         ItemCompleteUseAfterEventSignal,
-        ItemInteractAfterEventSignal,
+        ItemUseAfterEventSignal,
         PlayerEquipItemAfterEventSignal,
         PlayerAcquireItemAfterEventSignal,
         PlayerDropItemAfterEventSignal,
