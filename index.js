@@ -355,7 +355,7 @@ class APIInstance {
                 }));
             } catch (err) {
                 if (this.options.log_internal_errors) {
-                    console.log(`${tags.error} - APIInstance.APIInstance.EntityTypes.getAllForOne - ${color.whiteBright(err)}`);
+                    console.log(`${tags.error} - APIInstance.EntityTypes.getAllForOne - ${color.whiteBright(err)}`);
                 }
                 return;
             }
@@ -805,12 +805,13 @@ class AfterEventSignal {
     #internalName;
     #callbacks = new Set();
     #apiInstance;
+    #a;
     constructor(internalName, apiInstance=new APIInstance()) {
         this.#internalName = internalName;
         this.#apiInstance = apiInstance;
-        this.a = (raw, cb) => {
+        this.#a = (raw, cb, id) => {
             let msg = JSON.parse(raw.toString())
-            if (msg.header.eventName === this.#internalName || msg.body.eventName === this.#internalName) {
+            if (msg.header.eventName === this.#internalName) {
                 cb(msg.body, raw);
             } else return;
         }
@@ -821,10 +822,11 @@ class AfterEventSignal {
             this.#apiInstance.wss.clients.forEach(ws => {
                 if (ws.readyState === WebSocket.OPEN) {
                     try {
+                        let id = crypto.randomUUID({ disableEntropyCache: true })
                         ws.send(JSON.stringify({
                             header: {
                                 version: this.#apiInstance.options.command_version,
-                                requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                                requestId: id,
                                 messageType: 'commandRequest',
                                 messagePurpose: 'subscribe',
                             },
@@ -832,7 +834,7 @@ class AfterEventSignal {
                                 eventName: this.#internalName
                             }
                         }))
-                        ws.on('message', raw => this.a(raw, callback))
+                        ws.on('message', raw => this.#a(raw, callback, id))
                     } catch (err) {
                         this.#apiInstance.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.subscribe - ${color.whiteBright(err)}`) : void 0;
                     }
@@ -846,10 +848,11 @@ class AfterEventSignal {
             this.#apiInstance.wss.clients.forEach(ws => {
                 if (ws.readyState === WebSocket.OPEN) {
                     try {
+                        let id = crypto.randomUUID({ disableEntropyCache: true })
                         ws.send(JSON.stringify({
                             header: {
                                 version: this.#apiInstance.command_version,
-                                requestId: crypto.randomUUID({ disableEntropyCache: true }),
+                                requestId: id,
                                 messageType: 'commandRequest',
                                 messagePurpose: 'unsubscribe',
                             },
@@ -857,7 +860,7 @@ class AfterEventSignal {
                                 eventName: this.#internalName
                             }
                         }))
-                        ws.off('message', raw => this.a(raw, callback))
+                        ws.off('message', raw => this.#a(raw, callback, id))
                     } catch (err) {
                         this.#apiInstance.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.unsubscribe - ${color.whiteBright(err)}`) : void 0;
                     }
@@ -866,7 +869,112 @@ class AfterEventSignal {
         }
     }
 }
+// enums
+const TravelMethod = {
+    Walk: 0,
+    Water: 1,
+    Aerial: 2,
+    Climb: 3,
+    Lava: 4,
+    Fly: 5,
+    Ride: 6,
+    Sneak: 7,
+    Sprint: 8,
+    Bounce: 9,
+    FrostedIce: 10,
+    Teleport: 11
+};
+
+const TeleportMethod = {
+    EndGateway: 0,
+    Projectile: 1,
+    ChorusFruit: 2,
+    Command: 3,
+    Behavior: 4
+};
+
+const ItemCompleteUseMethod = {
+    Eat: 1,
+    Drink: 3,
+    Throw: 4,
+    Shoot: 5,
+    Place: 6,
+    OnBlock: 9,
+    Cast: 10
+};
+
+const ItemUseMethod = {
+    Use: 0,
+    Place: 1
+};
+
+const ItemAcquisitionMethod = {
+    Pickup: 1,
+    Craft: 2,
+    Chest: 3,
+    Anvil: 6,
+    Smelt: 7,
+    Brew: 8,
+    BucketFill: 9,
+    Trade: 10,
+    Fish: 11
+};
+
+const BlockPlacementMethod = {
+    Place: 0
+};
+
+const BlockDestructionMethod = {
+    Break: 0
+};
+
+const EntityDamageCause = {
+    none: -1,
+    override: 0,
+    contact: 1,
+    entityAttack: 2,
+    projectile: 3,
+    suffocation: 4,
+    fall: 5,
+    fire: 6,
+    fireTick: 7,
+    drowning: 9,
+    blockExplosion: 10,
+    entityExplosion: 11,
+    void: 12,
+    selfDestruct: 13,
+    magic: 14,
+    wither: 15,
+    starve: 16,
+    anvil: 17,
+    thorns: 18,
+    fallingBlock: 19,
+    piston: 20,
+    flyIntoWall: 21,
+    magma: 22,
+    fireworks: 23,
+    lightning: 24,
+    charging: 25,
+    temperature: 26,
+    stalactite: 28,
+    stalagmite: 29,
+    ramAttack: 30,
+    sonicBoom: 31,
+    campfire: 32,
+    soulCampfire: 33,
+    maceSmash: 34
+};
 module.exports = {
+    // classes
     APIInstance,
-    AfterEventSignal
+    AfterEventSignal,
+    // enums
+    TravelMethod,
+    TeleportMethod,
+    ItemCompleteUseMethod,
+    ItemUseMethod,
+    ItemAcquisitionMethod,
+    BlockPlacementMethod,
+    BlockDestructionMethod,
+    EntityDamageCause
 }

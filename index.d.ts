@@ -20,6 +20,7 @@ declare module 'mcwss-api' {
         | 'BlockBroken'
         | 'MobKilled'
         | 'MobInteracted'
+        | 'TargetBlockHit'
     type MessagePurpose =
         | 'subscribe'
         | 'unsubscribe'
@@ -119,19 +120,20 @@ declare module 'mcwss-api' {
         metersTravelled: number
         newBiome: number
         player: Player
-        travelMethod: number
+        vehicle?: Entity
+        travelMethod: TravelMethod
     }
     interface PlayerTransformAfterEvent {
         player: Player
     }
     interface PlayerTeleportAfterEvent {
-        cause: number,
+        cause: TeleportMethod,
         itemType: number
         metersTravelled: number
         player: Player
     }
     interface PlayerDieAfterEvent {
-        cause: number
+        cause: EntityDamageCause
         inRaid: boolean
         killer: Entity
         player: Player
@@ -150,12 +152,12 @@ declare module 'mcwss-api' {
         count: number
         item: Item
         player: Player
-        useMethod: number
+        useMethod: ItemCompleteUseMethod
     }
     interface ItemUseAfterEvent {
         count: number
         item: ItemAdvanced
-        method: number
+        method: ItemUseMethod
         player: Player
         slot: number
     }
@@ -165,7 +167,7 @@ declare module 'mcwss-api' {
         slot: number
     }
     interface PlayerAcquireItemAfterEvent {
-        acquisitionMethodId: number
+        acquisitionMethodId: ItemAcquisitionMethod
         count: number
         item: Item
         player: Player
@@ -197,14 +199,14 @@ declare module 'mcwss-api' {
         block: Block
         count: number
         placedUnderWater: boolean
-        placementMethod: number
+        placementMethod: BlockPlacementMethod
         player: Player
         tool: ItemAdvanced
     }
     interface PlayerBreakBlockAfterEvent {
         block: Block
         count: number
-        destructionMethod: number
+        destructionMethod: BlockDestructionMethod
         player: Player
         tool: ItemAdvanced
         variant: number
@@ -216,7 +218,7 @@ declare module 'mcwss-api' {
         armorLegs: ItemAdvanced
         armorTorso: ItemAdvanced
         isMonster: boolean
-        killMethodType: number
+        killMethodType: EntityDamageCause
         player: Player
         playerIsHiddenFrom: boolean
         victim: EntityAdvanced
@@ -271,6 +273,94 @@ declare module 'mcwss-api' {
             * - Default is `1`, highest is `42`.
         */
         command_version: number
+    }
+    // enums
+    enum TravelMethod {
+        Walk = 0,
+        Water = 1,
+        Aerial = 2,
+        Climb = 3,
+        Lava = 4,
+        Fly = 5,
+        Ride = 6,
+        Sneak = 7,
+        Sprint = 8,
+        Bounce = 9,
+        FrostedIce = 10,
+        Teleport = 11,
+    }
+    enum TeleportMethod {
+        EndGateway = 0,
+        Projectile = 1,
+        ChorusFruit = 2,
+        Command = 3,
+        Behavior = 4
+    }
+    enum ItemCompleteUseMethod {
+        Eat = 1,
+        Drink = 3,
+        Throw = 4,
+        Shoot = 5,
+        Place = 6,
+        OnBlock = 9,
+        Cast = 10
+    }
+    enum ItemUseMethod {
+        Use = 0,
+        Place = 1
+    }
+    enum ItemAcquisitionMethod {
+        Pickup = 1,
+        Craft = 2,
+        Chest = 3,
+        Anvil = 6,
+        Smelt = 7,
+        Brew = 8,
+        BucketFill = 9,
+        Trade = 10,
+        Fish = 11
+    }
+    enum BlockPlacementMethod {
+        Place = 0
+    }
+    enum BlockDestructionMethod {
+        Break = 0
+    }
+    enum EntityDamageCause {
+        none = -1,
+        override = 0,
+        contact = 1,
+        entityAttack = 2,
+        projectile = 3,
+        suffocation = 4,
+        fall = 5,
+        fire = 6,
+        fireTick = 7,
+        drowning = 9,
+        blockExplosion = 10,
+        entityExplosion = 11,
+        void = 12,
+        selfDestruct = 13,
+        magic = 14,
+        wither = 15,
+        starve = 16,
+        anvil = 17,
+        thorns = 18,
+        fallingBlock = 19,
+        piston = 20,
+        flyIntoWall = 21,
+        magma = 22,
+        fireworks = 23,
+        lightning = 24,
+        charging = 25,
+        temperature = 26,
+        stalactite = 28,
+        stalagmite = 29,
+        ramAttack = 30,
+        sonicBoom = 31,
+        campfire = 32,
+        soulCampfire = 33,
+        maceSmash = 34
     }
     // classes
     class APIInstance {
@@ -461,6 +551,7 @@ declare module 'mcwss-api' {
         #internalName: EventType
         #callbacks: ((msg: any) => void)[]
         #apiInstance: APIInstance
+        #a: (raw: string | ArrayBufferLike, cb: (msg, raw) => void, id: string) => void
         constructor(internalName: EventType, apiInstance: APIInstance)
         /** Subscribe to the event signal. */
         subscribe(callback: (msg: any) => void): void
@@ -520,6 +611,15 @@ declare module 'mcwss-api' {
         PlayerKillEntityAfterEventSignal,
         PlayerInteractWithEntityAfterEventSignal,
         TargetBlockHitAfterEventSignal,
+        // enums
+        TravelMethod,
+        TeleportMethod,
+        ItemCompleteUseMethod,
+        ItemUseMethod,
+        ItemAcquisitionMethod,
+        BlockPlacementMethod,
+        BlockDestructionMethod,
+        EntityDamageCause,
         // classes
         APIOptions,
         APIInstance,
