@@ -45,37 +45,37 @@ api.wss.on('connection', ws => {
 # Methods
 
 ### BlockTypes.getAll
-Get all available block types for all clients connected to the WSS.
+Get all available block types for all clients connected to the WebSocket server.
 ```javascript
 await api.BlockTypes.getAll()
 ```
 
 ### BlockTypes.getAllForOne
-Get all available block types for one client connected to the WSS.
+Get all available block types for one client connected to the WebSocket server.
 ```javascript
 await api.BlockTypes.getAllForOne()
 ```
 
 ### ItemTypes.getAll
-Get all available item types for all clients connected to the WSS.
+Get all available item types for all clients connected to the WebSocket server.
 ```javascript
 await api.ItemTypes.getAll()
 ```
 
 ### ItemTypes.getAllForOne
-Get all available block types for one client connected to the WSS.
+Get all available block types for one client connected to the WebSocket server.
 ```javascript
 await api.ItemTypes.getAllForOne()
 ```
 
 ### EntityTypes.getAll
-Get all available entity types for all clients connected to the WSS.
+Get all available entity types for all clients connected to the WebSocket server.
 ```javascript
 await api.EntityTypes.getAll()
 ```
 
 ### EntityTypes.getAllForOne
-Get all available block types for one client connected to the WSS.
+Get all available block types for one client connected to the WebSocket server.
 ```javascript
 await api.EntityTypes.getAllForOne()
 ```
@@ -120,25 +120,25 @@ api.rawForOne(ws, raw)
 ### subscribeCustom
 Subscribe to an custom event type for all clients, to listen for events that aren't in the Events section.
 ```javascript
-api.subscribeCustom(event_type)
+api.subscribeCustom(event_type, cb)
 ```
 
 ### unsubscribeCustom
 Unsubscribe to an custom event type for all clients, to stop listening for events that aren't in the Events section.
 ```javascript
-api.unsubscribeCustom(event_type)
+api.unsubscribeCustom(event_type, cb)
 ```
 
 ### subscribeCustomForOne
 Subscribe to an custom event type for one client, to listen for events that aren't in the Events section.
 ```javascript
-api.subscribeCustomForOne(ws, event_type)
+api.subscribeCustomForOne(ws, event_type, cb)
 ```
 
 ### unsubscribeCustomForOne
 Unsubscribe to an custom event type for one client, to stop listening for events that aren't in the Events section.
 ```javascript
-api.unsubscribeCustomForOne(ws, event_type)
+api.unsubscribeCustomForOne(ws, event_type, cb)
 ```
 
 ### onPurpose
@@ -166,33 +166,33 @@ api.offPurposeForOne(ws, purpose, callback)
 ```
 
 ### runCommand
-Execute an in-game command for all clients connected to the WSS.
+Execute an in-game command for all clients connected to the WebSocket server.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
-- Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+- Note that the position at which commands are run from, is the player position of the client that's connected to the WebSocket server.
 ```javascript
 api.runCommand(command)
 ```
 
 ### runCommandAsync
-Execute an in-game command for all clients connected to the WSS, and wait for a response.  
+Execute an in-game command for all clients connected to the WebSocket server, and wait for a response.  
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
-- Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+- Note that the position at which commands are run from, is the player position of the client that's connected to the WebSocket server.
 ```javascript
 await api.runCommandAsync(command)
 ```
 
 ### runCommandForOne
-Execute an in-game command for one client connected to the WSS.
+Execute an in-game command for one client connected to the WebSocket server.
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
-- Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+- Note that the position at which commands are run from, is the player position of the client that's connected to the WebSocket server.
 ```javascript
 api.runCommandForOne(ws, command)
 ```
 
 ### runCommandAsyncForOne
-Execute an in-game command for one client connected to the WSS, and wait for a response.  
+Execute an in-game command for one client connected to the WebSocket server, and wait for a response.  
 - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
-- Note that the position at which commands are run from, is the position of the client that's connected to the WSS.
+- Note that the position at which commands are run from, is the player position of the client that's connected to the WebSocket server.
 ```javascript
 await api.runCommandAsyncForOne(ws, command)
 ```
@@ -207,66 +207,87 @@ The options for the package.
 ### afterEvents
 All of the available event signals that you can subscribe to.
 
-# Internal Event Names
-These are all of the events that are wrapped and renamed in the `afterEvents` object.
-- Most of these only work for whatever client is connected to the wss (the host in most cases), so maybe test it first before you get too excited!
+# After Events
+These are all of the events that I could find.
+Name on the left is what it's wrapped into, name on the right is the internal name.
 
-### PlayerMessage
+### chatSend *(PlayerMessage)*
 Fires every time a message gets sent in general. Not just players.
-- If you are the host, this works for messages sent by other players. Otherwise, it only works for yours.
+- As long as you're the host, this works for all players in the multiplayer game that you're hosting. Otherwise, it only works for all clients connected to the WebSocket server.
 
-### PlayerTravelled
-This fires whenever the player moves around.
+### playerMove *(PlayerTravelled)*
+Fires whenever the player moves around.
+- This only works for all clients connected to the WebSocket server.
 
-### PlayerTransform
+### playerTransform *(PlayerTransform)*
 This is the exact same thing as PlayerTravelled, except with no information about how & where the player moved.
+- This only works for all clients connected to the WebSocket server.
 
-### PlayerTeleported
-This fires whenever the player teleports. (via /tp or the like)
+### playerTeleport *(PlayerTeleported)*
+Fires whenever the player in any way. (via /tp or the like)
+- This only works for all clients connected to the WebSocket server.
 
-### PlayerDied
-This fires whenever the player dies.
+### playerDie *(PlayerDied)*
+Fires whenever the player dies.
+- This only works for all clients connected to the WebSocket server.
 
-### PlayerBounced
-This fires whenever the player bounces on a slime block, bed, or any other bouncy block.
+### playerBounce *(PlayerBounced)*
+Fires whenever the player bounces on a slime block, bed, or any other bouncy block.
+- This only works for all clients connected to the WebSocket server.
 
-### EntitySpawned
-This fires whenever you spawn something, via spawn egg or command.
+### entitySpawn *(EntitySpawned)*
+Fires whenever you spawn something, via spawn egg or command.
+- This only works for all clients connected to the WebSocket server.
 
-### ItemUsed
-This fires whenever you finish using an item.
+### itemCompleteUse *(ItemUsed)*
+Fires whenever you finish using an item.
+- This only works for all clients connected to the WebSocket server.
 
-### ItemInteracted
-This fires whenever either right-click with an item, place it's block, or begin/finish using that item.
+### itemUse *(ItemInteracted)*
+Fires whenever either right-click with an item, place it's block, or begin/finish using that item.
+- This only works for all clients connected to the WebSocket server.
 
-### ItemEquipped
-This fires whenever you equip an item.
+### playerEquipItem *(ItemEquipped)*
+Fires whenever you equip an item.
 - Unless the item being equipped is a Shield, putting the item into the equip slot through the inventory will not work.
 - You need to use the right-click equip feature.
+- This only works for all clients connected to the WebSocket server.
 
-### ItemAcquired
-This fires whenever you pick up an item.
+### playerAcquireItem *(ItemAcquired)*
+Fires whenever you pick up an item.
+- This only works for all clients connected to the WebSocket server.
 
-### ItemDropped
-This fires whenever you drop an item.
+### playerDropItem *(ItemDropped)*
+Fires whenever you drop an item.
+- This only works for all clients connected to the WebSocket server.
 
-### ItemSmelted
-This fires whenever you grab a cooked item out of a furnace.
+### playerAcquireSmeltedItem *(ItemSmelted)*
+Fires whenever you grab a cooked item out of a furnace.
+- This only works for all clients connected to the WebSocket server.
 
-### ItemCrafted
-This fires whenever you craft something.
+### playerCraftItem *(ItemCrafted)*
+Fires whenever you craft something.
+- This only works for all clients connected to the WebSocket server.
 
-### BlockPlaced
-This fires whenever you place a block.
+### playerPlaceBlock *(BlockPlaced)*
+Fires whenever you place a block.
+- This only works for all clients connected to the WebSocket server.
 
-### BlockBroken
-This fires whenever you break a block.
+### playerBreakBlock *(BlockBroken)*
+Fires whenever you break a block.
+- This only works for all clients connected to the WebSocket server.
 
-### MobKilled
-This fires whenever you kill a mob.
+### playerKillEntity *(MobKilled)*
+Fires whenever you kill a mob.
+- This only works for all clients connected to the WebSocket server.
 
-### MobInteracted
-This fires whenever you interact with a mob. (unless it has no interact function)
+### playerInteractWithEntity *(MobInteracted)*
+Fires whenever you interact with a mob. (unless it has no interact function)
+- This only works for all clients connected to the WebSocket server.
+
+### targetBlockHit *(TargetBlockHit)*
+Fires whenever you activate a target block.
+- This only works for all clients connected to the WebSocket server.
 
 # Purposes
 These are all of the values that `messagePurpose` can have (or at least all of the ones that i've found).

@@ -2,13 +2,24 @@ let WebSocket = require('ws');
 let color = require('cli-color');
 let crypto = require('node:crypto')
 let _version = require('./package.json').version
+let fetch = require('node-fetch')
 let tags = {
     info: `[${color.cyanBright('INFO')}]`,
     warn: `[${color.yellowBright('WARNING')}]`,
     error: `[${color.redBright('ERROR')}]`,
     fatal: `[${color.red('FATAL')}]`,
 }
-console.log(`${tags.info} ${color.greenBright('Package loaded')}; version: ${color.cyanBright(_version)}`); // log the version of the package
+console.log(`${tags.info} - ${color.greenBright('API loaded')}; version: ${color.cyanBright(_version)}`); // log the version of the package
+let check_for_updates = async() => {
+    let a = (await fetch(`https://registry.npmjs.com/mcwss-api`)).text()
+    return a.then(raw => {
+        let json = JSON.parse(raw)
+        if (json['dist-tags'].latest !== _version) {
+            console.log(`${tags.info} - ${color.greenBright('A new version of the API is available')}! ${color.white('(' + json['dist-tags'].latest + ')')}`); // log the version of the package
+            return true
+        } else return false
+    })
+}
 // api
 class APIInstance {
     wss;
@@ -364,7 +375,11 @@ class APIInstance {
             return result;
         }
     }
-    constructor() {}
+    constructor() {
+        console.log(`${tags.info} - ${color.greenBright('API initialized')}!`); // log the version of the package
+        console.log(`${tags.info} - ${color.greenBright('Checking for updates')}...`); // log the version of the package
+        check_for_updates()
+    }
     // methods
     start(port, host, options) {
         try {
@@ -373,12 +388,12 @@ class APIInstance {
                 host: host ?? '127.0.0.1'
             });
             this.options = options ?? {};
-            console.log(`${tags.info} ${color.greenBright('Server started')}; type \'${color.whiteBright(`/wsserver ${host ?? '127.0.0.1'}:${port}`)}\' on Minecraft to begin!`)
+            console.log(`${tags.info} - ${color.greenBright('API started')}; type \'${color.whiteBright(`/wsserver ${host ?? '127.0.0.1'}:${port}`)}\' on Minecraft to begin!`)
             let decoder = new TextDecoder();
             this.wss.on('connection', (ws, req) => {
                 req.socket.setKeepAlive(true, 30000);
                 ws.isAlive = true;
-                console.log(`${tags.info} ${color.blueBright('A client has connected')}!`)
+                console.log(`${tags.info} - ${color.blueBright('A client has connected')}!`)
                 
                 ws.on('message', raw => {
                     try {
@@ -388,29 +403,29 @@ class APIInstance {
                                 break;
                             case 'commandResponse':
                                 if (msg.body.statusCode < 0 && this.options.log_command_errors) {
-                                    console.log(`${tags.error} ${color.whiteBright(msg.body.statusMessage)} | ${color.yellowBright(msg.body.statusCode)}`)
+                                    console.log(`${tags.error} - ${color.whiteBright(msg.body.statusMessage)} | ${color.yellowBright(msg.body.statusCode)}`)
                                 } else if (msg.body.statusCode >= 0 && this.options.log_command_output) {
-                                    console.log(`${tags.info} ${color.whiteBright(msg.body.statusMessage)}`)
+                                    console.log(`${tags.info} - ${color.whiteBright(msg.body.statusMessage)}`)
                                 }
                                 break;
                             case 'error': 
-                                this.options.log_message_errors ? console.log(`${tags.error} ${color.whiteBright(msg.body.statusMessage ?? 'An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
+                                this.options.log_message_errors ? console.log(`${tags.error} - ${color.whiteBright(msg.body.statusMessage ?? 'An error has occured.')} | ${color.yellowBright(msg.body.statusCode)}`) : void 0;
                                 break;
                             default:
                                 break;
                         }
                     } catch (err) {
-                        this.options.log_internal_errors ? console.log(`${tags.error} ${color.whiteBright(err)}`) : void 0;
+                        this.options.log_internal_errors ? console.log(`${tags.error} - ${color.whiteBright(err)}`) : void 0;
                     }
                 })
                 ws.on('pong', () => {
                     ws.isAlive = true; // Mark alive when pong is received
                 });
                 ws.on('error', err => {
-                    console.log(`${tags.error} ${color.whiteBright(err)}`)
+                    console.log(`${tags.error} - ${color.whiteBright(err)}`)
                 });
                 ws.on('close', () => {
-                    console.log(`${tags.info} ${color.blueBright('A client has disconnected')}.`)
+                    console.log(`${tags.info} - ${color.blueBright('A client has disconnected')}.`)
                 });
             });
             let interval = setInterval(() => {
@@ -422,10 +437,10 @@ class APIInstance {
                 });
             }, 30000);
             this.wss.on('error', err => {
-                console.log(`${tags.error} ${color.whiteBright(`SERVER ERROR - ${err}`)}`)
+                console.log(`${tags.error} - ${color.whiteBright(`SERVER ERROR`)} - ${color.whiteBright(`${err}`)}`)
             });
             this.wss.on('close', () => {
-                console.log(`${tags.info} ${color.blueBright('The server has closed')}.`)
+                console.log(`${tags.info} - ${color.blueBright('The server has closed')}.`)
                 clearInterval(interval)
             });
         } catch (err) {
@@ -447,7 +462,7 @@ class APIInstance {
                     let msg = JSON.parse(raw.toString())
 
                     if (msg.header.messagePurpose === purpose) {
-                        cb(msg);
+                        cb(msg, raw);
                     } else return;
                 }
                 ws.on('message', a)
@@ -474,7 +489,7 @@ class APIInstance {
             let a = raw => {
                 let msg = JSON.parse(raw.toString())
                 if (msg.header.messagePurpose === purpose) {
-                    cb(msg);
+                    cb(msg, raw);
                 } else return;
             }
             ws.on('message', a)
@@ -492,7 +507,7 @@ class APIInstance {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.offPurpose - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    unsubscribeCustom(eventType) {
+    unsubscribeCustom(eventType, cb) {
         for (let ws of this.wss.clients) {
             if (ws.readyState !== WebSocket.OPEN) return;
             try {
@@ -507,12 +522,19 @@ class APIInstance {
                         eventName: eventType
                     }
                 }))
+                let a = raw => {
+                    let msg = JSON.parse(raw.toString())
+                    if (msg.header.eventName === eventType) {
+                        cb(msg);
+                    } else return;
+                }
+                ws.off('message', a)
             } catch (err) {
                 this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.unsubscribeCustom - ${color.whiteBright(err)}`) : void 0;
             }
         }
     }
-    subscribeCustom(eventType) {
+    subscribeCustom(eventType, cb) {
         for (let ws of this.wss.clients) {
             if (ws.readyState !== WebSocket.OPEN) return;
             try {
@@ -527,12 +549,19 @@ class APIInstance {
                         eventName: eventType
                     }
                 }))
+                let a = raw => {
+                    let msg = JSON.parse(raw.toString())
+                    if (msg.header.eventName === eventType) {
+                        cb(msg.body, raw);
+                    } else return;
+                }
+                ws.on('message', a)
             } catch (err) {
                 this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribeCustom - ${color.whiteBright(err)}`) : void 0;
             }
         }
     }
-    unsubscribeCustomForOne(ws, eventType) {
+    unsubscribeCustomForOne(ws, eventType, cb) {
         if (ws.readyState !== WebSocket.OPEN) return;
         try {
             ws.send(JSON.stringify({
@@ -546,11 +575,18 @@ class APIInstance {
                     eventName: eventType
                 }
             }))
+            let a = raw => {
+                let msg = JSON.parse(raw.toString())
+                if (msg.header.eventName === eventType) {
+                    cb(msg);
+                } else return;
+            }
+            ws.off('message', a)
         } catch (err) {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.unsubscribeCustomForOne - ${color.whiteBright(err)}`) : void 0;
         }
     }
-    subscribeCustomForOne(ws, eventType) {
+    subscribeCustomForOne(ws, eventType, cb) {
         if (ws.readyState !== WebSocket.OPEN) return;
         try {
             ws.send(JSON.stringify({
@@ -564,6 +600,13 @@ class APIInstance {
                     eventName: eventType
                 }
             }))
+            let a = raw => {
+                let msg = JSON.parse(raw.toString())
+                if (msg.header.eventName === eventType) {
+                    cb(msg);
+                } else return;
+            }
+            ws.on('message', a)
         } catch (err) {
             this.options.log_internal_errors ? console.log(`${tags.error} - APIInstance.subscribeCustomForOne - ${color.whiteBright(err)}`) : void 0;
         }
@@ -868,6 +911,320 @@ class AfterEventSignal {
             })
         }
     }
+    subscribeForOne(ws, callback) {
+        this.#callbacks.add(callback);
+        if (this.#callbacks.size === 1) {
+            if (ws.readyState === WebSocket.OPEN) {
+                try {
+                    let id = crypto.randomUUID({ disableEntropyCache: true })
+                    ws.send(JSON.stringify({
+                        header: {
+                            version: this.#apiInstance.options.command_version,
+                            requestId: id,
+                            messageType: 'commandRequest',
+                            messagePurpose: 'subscribe',
+                        },
+                        body: {
+                            eventName: this.#internalName
+                        }
+                    }))
+                    ws.on('message', raw => this.#a(raw, callback, id))
+                } catch (err) {
+                    this.#apiInstance.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.subscribeForOne - ${color.whiteBright(err)}`) : void 0;
+                }
+            }
+        }
+    }
+    unsubscribeForOne(ws, callback) {
+        this.#callbacks.delete(callback);
+        if (this.#callbacks.size === 0) {
+            if (ws.readyState === WebSocket.OPEN) {
+                try {
+                    let id = crypto.randomUUID({ disableEntropyCache: true })
+                    ws.send(JSON.stringify({
+                        header: {
+                            version: this.#apiInstance.command_version,
+                            requestId: id,
+                            messageType: 'commandRequest',
+                            messagePurpose: 'unsubscribe',
+                        },
+                        body: {
+                            eventName: this.#internalName
+                        }
+                    }))
+                    ws.off('message', raw => this.#a(raw, callback, id))
+                } catch (err) {
+                    this.#apiInstance.options.log_internal_errors ? console.log(`${tags.error} - AfterEventSignal.unsubscribeForOne - ${color.whiteBright(err)}`) : void 0;
+                }
+            }
+        }
+    }
+}
+class ChatSendAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerMoveAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerTransformAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerTeleportAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerDieAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerBounceAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class EntitySpawnAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class ItemCompleteUseAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class ItemUseAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerEquipItemAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerAcquireItemAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerDropItemAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerCraftItemAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerAcquireSmeltedItemAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerPlaceBlockAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerBreakBlockAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerKillEntityAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class PlayerInteractWithEntityAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
+}
+class TargetBlockHitAfterEventSignal extends AfterEventSignal {
+    #internalName;
+    #callbacks;
+    #apiInstance;
+    #a;
+    constructor() {
+        super('')
+        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+    }
+    subscribe() {}
+    unsubscribe() {}
+    subscribeForOne() {}
+    unsubscribeForOne() {}
 }
 // enums
 const TravelMethod = {
@@ -883,16 +1240,19 @@ const TravelMethod = {
     Bounce: 9,
     FrostedIce: 10,
     Teleport: 11
-};
-
+}
 const TeleportMethod = {
     EndGateway: 0,
     Projectile: 1,
     ChorusFruit: 2,
     Command: 3,
     Behavior: 4
-};
-
+}
+const SpawnMethod = {
+    SpawnEgg: 1,
+    Command: 2,
+    MobSpawner: 4
+}
 const ItemCompleteUseMethod = {
     Eat: 1,
     Drink: 3,
@@ -901,13 +1261,11 @@ const ItemCompleteUseMethod = {
     Place: 6,
     OnBlock: 9,
     Cast: 10
-};
-
+}
 const ItemUseMethod = {
     Use: 0,
     Place: 1
-};
-
+}
 const ItemAcquisitionMethod = {
     Pickup: 1,
     Craft: 2,
@@ -918,16 +1276,13 @@ const ItemAcquisitionMethod = {
     BucketFill: 9,
     Trade: 10,
     Fish: 11
-};
-
+}
 const BlockPlacementMethod = {
     Place: 0
-};
-
+}
 const BlockDestructionMethod = {
     Break: 0
-};
-
+}
 const EntityDamageCause = {
     none: -1,
     override: 0,
@@ -963,7 +1318,7 @@ const EntityDamageCause = {
     campfire: 32,
     soulCampfire: 33,
     maceSmash: 34
-};
+}
 module.exports = {
     // classes
     APIInstance,
@@ -971,10 +1326,31 @@ module.exports = {
     // enums
     TravelMethod,
     TeleportMethod,
+    SpawnMethod,
     ItemCompleteUseMethod,
     ItemUseMethod,
     ItemAcquisitionMethod,
     BlockPlacementMethod,
     BlockDestructionMethod,
-    EntityDamageCause
+    EntityDamageCause,
+    // event signals
+    ChatSendAfterEventSignal,
+    PlayerMoveAfterEventSignal,
+    PlayerTransformAfterEventSignal,
+    PlayerTeleportAfterEventSignal,
+    PlayerDieAfterEventSignal,
+    PlayerBounceAfterEventSignal,
+    EntitySpawnAfterEventSignal,
+    ItemCompleteUseAfterEventSignal,
+    ItemUseAfterEventSignal,
+    PlayerEquipItemAfterEventSignal,
+    PlayerAcquireItemAfterEventSignal,
+    PlayerDropItemAfterEventSignal,
+    PlayerCraftItemAfterEventSignal,
+    PlayerAcquireSmeltedItemAfterEventSignal,
+    PlayerPlaceBlockAfterEventSignal,
+    PlayerBreakBlockAfterEventSignal,
+    PlayerKillEntityAfterEventSignal,
+    PlayerInteractWithEntityAfterEventSignal,
+    TargetBlockHitAfterEventSignal,
 }

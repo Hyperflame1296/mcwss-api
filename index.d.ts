@@ -41,6 +41,51 @@ declare module 'mcwss-api' {
         | 'ws:encrypt'
         | 'ws:encryptionRequest'
         | 'ws:encryptionResponse'
+    type CommandVersion =
+        | -1
+        | 1
+        | 2
+        | 3
+        | 4
+        | 5
+        | 6
+        | 7
+        | 8
+        | 9
+        | 10
+        | 11
+        | 12
+        | 13
+        | 14
+        | 15
+        | 16
+        | 17
+        | 18
+        | 19
+        | 20
+        | 21
+        | 22
+        | 23
+        | 24
+        | 25
+        | 26
+        | 27
+        | 28
+        | 29
+        | 30
+        | 31
+        | 32
+        | 33
+        | 34
+        | 35
+        | 36
+        | 37
+        | 38
+        | 39
+        | 40
+        | 41
+        | 42
+
 
     // interfaces
     /** An item enchantment. */
@@ -145,8 +190,8 @@ declare module 'mcwss-api' {
     }
     interface EntitySpawnAfterEvent {
         mob: EntitySingle
-        player: Player
-        spawnType: number
+        player?: Player
+        spawnType: SpawnMethod
     }
     interface ItemCompleteUseAfterEvent {
         count: number
@@ -272,7 +317,7 @@ declare module 'mcwss-api' {
             * The `version` of the commands to send.
             * - Default is `1`, highest is `42`.
         */
-        command_version: number
+        command_version: CommandVersion
     }
     // enums
     enum TravelMethod {
@@ -295,6 +340,11 @@ declare module 'mcwss-api' {
         ChorusFruit = 2,
         Command = 3,
         Behavior = 4
+    }
+    enum SpawnMethod {
+        SpawnEgg = 1,
+        Command = 2,
+        MobSpawner = 4
     }
     enum ItemCompleteUseMethod {
         Eat = 1,
@@ -416,28 +466,29 @@ declare module 'mcwss-api' {
             playerPlaceBlock: PlayerPlaceBlockAfterEventSignal,
             playerBreakBlock: PlayerBreakBlockAfterEventSignal,
             playerKillEntity: PlayerKillEntityAfterEventSignal,
-            playerInteractWithEntity: PlayerInteractWithEntityAfterEventSignal
+            playerInteractWithEntity: PlayerInteractWithEntityAfterEventSignal,
+            targetBlockHit: TargetBlockHitAfterEventSignal
         }
         /** Start the WebSocket server. */
         start(port: number, host: string, options: APIOptions): void
         /** Stop the WebSocket server. */
         stop(): void
         /** Subscribe to an custom event type for all clients, to listen for for any event that isn't in the Events section. */
-        subscribeCustom(eventType: EventType): void
+        subscribeCustom(eventType: string | EventType, cb: (msg: object, raw: string | ArrayBufferLike) => void): void
         /** Unsubscribe to an custom event type for all clients, to stop listening for any event that isn't in the Events section. */
-        unsubscribeCustom(eventType: EventType): void
+        unsubscribeCustom(eventType: string | EventType, cb: (msg: object, raw: string | ArrayBufferLike) => void): void
         /** Subscribe to an custom event type for one client, to listen for for any event that isn't in the Events section. */
-        subscribeCustomForOne(ws: WebSocket, eventType: EventType): void
+        subscribeCustomForOne(ws: WebSocket, eventType: string | EventType, cb: (msg: object, raw: string | ArrayBufferLike) => void): void
         /** Unsubscribe to an custom event type for one client, to stop listening for any event that isn't in the Events section. */
-        unsubscribeCustomForOne(ws: WebSocket, eventType: EventType): void
+        unsubscribeCustomForOne(ws: WebSocket, eventType: string | EventType, cb: (msg: object, raw: string | ArrayBufferLike) => void): void
         /** Listen for a specified event purpose on all clients' ends. */
-        onPurpose(purpose: MessagePurpose, cb: (msg: object) => void): Function
+        onPurpose(purpose: MessagePurpose, cb: (msg: object, raw: string | ArrayBufferLike) => void): (raw: string | ArrayBufferLike) => void
         /** Stop listening for a specified event purpose on all clients' ends. */
-        offPurpose(cb: (msg: object) => void): void
+        offPurpose(cb: (raw: string | ArrayBufferLike) => void): void
         /** Listen for a specified event purpose on a single client's end. */
-        onPurposeForOne(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object) => void): Function
+        onPurposeForOne(ws: WebSocket, purpose: MessagePurpose, cb: (msg: object, raw: string | ArrayBufferLike) => void): (raw: string | ArrayBufferLike) => void
         /** Stop listening for a specified event purpose a single client's end. */
-        offPurposeForOne(ws: WebSocket, cb: (msg: object) => void): void
+        offPurposeForOne(ws: WebSocket, cb: (raw: string | ArrayBufferLike) => void): void
         /** 
             * Execute an in-game command for all clients connected to the WSS.
             * - `command` is normally a string, but you can also pass arrays into it, executing multiple commands at once.
@@ -551,7 +602,7 @@ declare module 'mcwss-api' {
         #internalName: EventType
         #callbacks: ((msg: any) => void)[]
         #apiInstance: APIInstance
-        #a: (raw: string | ArrayBufferLike, cb: (msg, raw) => void, id: string) => void
+        #a: (raw: string | ArrayBufferLike, cb: (msg: object, raw: string | ArrayBufferLike) => void, id: string) => void
         constructor(internalName: EventType, apiInstance: APIInstance)
         /** Subscribe to the event signal. */
         subscribe(callback: (msg: any) => void): void
@@ -614,6 +665,7 @@ declare module 'mcwss-api' {
         // enums
         TravelMethod,
         TeleportMethod,
+        SpawnMethod,
         ItemCompleteUseMethod,
         ItemUseMethod,
         ItemAcquisitionMethod,
