@@ -22,19 +22,18 @@ npm i mcwss-api@latest
 let { APIInstance } = require('mcwss-api')
 
 let api = new APIInstance();
-api.start(8080, '127.0.0.1', {
+api.start(3000, '127.0.0.1', {
     // logging
     log_command_errors : true , // log command syntax errors into console
     log_command_output : false, // log command outputs into console
-    log_message_errors : false, // log json message errors into console
+    log_message_errors : true , // log json message errors into console
     log_internal_errors: true , // log internal package errors into console
     // game stuff
     command_version: 1 // message request version, default is 1, highest is 42
 })
-
-api.wss.on('connection', ws => {
+api.wss.on('connection', async ws => {
     api.afterEvents.chatSend.subscribe((msg, raw) => {
-        if (msg.type !== 'say') { // to prevent an infinite loop
+        if (msg.type === 'chat') { // to prevent an infinite loop
             console.log(msg) // logs any PlayerMessage event that goes through
             api.runCommand(`say ${msg.message}`) // send the message back with /say!
         }
@@ -216,15 +215,15 @@ Fires every time a message gets sent in general. Not just players.
 - As long as you're the host, this works for all players in the multiplayer game that you're hosting. Otherwise, it only works for all clients connected to the WebSocket server.
 
 ### playerMove *(PlayerTravelled)*
-Fires whenever the player moves around.
+Fires whenever a player moves around.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerTransform *(PlayerTransform)*
-This is the exact same thing as PlayerTravelled, except with no information about how & where the player moved.
+This is the same thing as `playerMove`, except with no information about how & where the player moved.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerTeleport *(PlayerTeleported)*
-Fires whenever the player in any way. (via /tp or the like)
+Fires whenever the player in any way. (via `/tp` or the like)
 - This only works for all clients connected to the WebSocket server.
 
 ### playerDie *(PlayerDied)*
@@ -232,15 +231,16 @@ Fires whenever the player dies.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerBounce *(PlayerBounced)*
-Fires whenever the player bounces on a slime block, bed, or any other bouncy block.
+Fires whenever the player bounces on a slime block, bed, or any other bounceable block.
 - This only works for all clients connected to the WebSocket server.
 
 ### entitySpawn *(EntitySpawned)*
-Fires whenever you spawn something, via spawn egg or command.
+Fires whenever a player spawns something, via spawn egg or command.
 - This only works for all clients connected to the WebSocket server.
 
 ### itemCompleteUse *(ItemUsed)*
-Fires whenever you finish using an item.
+Fires whenever a player finish using an item.
+- If the item being used shoots a projectile, the `item` property will instead be the ammo used to shoot the projectile.
 - This only works for all clients connected to the WebSocket server.
 
 ### itemUse *(ItemInteracted)*
@@ -249,44 +249,43 @@ Fires whenever either right-click with an item, place it's block, or begin/finis
 
 ### playerEquipItem *(ItemEquipped)*
 Fires whenever you equip an item.
-- Unless the item being equipped is a Shield, putting the item into the equip slot through the inventory will not work.
-- You need to use the right-click equip feature.
+- Unless the item is a Shield, putting the item into the equip slot through the inventory will not work. You have to right-click with the equippable item.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerAcquireItem *(ItemAcquired)*
-Fires whenever you pick up an item.
+Fires whenever a player picks up an item.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerDropItem *(ItemDropped)*
-Fires whenever you drop an item.
+Fires whenever a player drops an item.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerAcquireSmeltedItem *(ItemSmelted)*
-Fires whenever you grab a cooked item out of a furnace.
+Fires whenever a player grabs a cooked item out of a furnace.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerCraftItem *(ItemCrafted)*
-Fires whenever you craft something.
+Fires whenever a player crafts something.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerPlaceBlock *(BlockPlaced)*
-Fires whenever you place a block.
+Fires whenever a player places a block.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerBreakBlock *(BlockBroken)*
-Fires whenever you break a block.
+Fires whenever a player breaks a block.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerKillEntity *(MobKilled)*
-Fires whenever you kill a mob.
+Fires whenever a player kills an entity.
 - This only works for all clients connected to the WebSocket server.
 
 ### playerInteractWithEntity *(MobInteracted)*
-Fires whenever you interact with a mob. (unless it has no interact function)
+Fires whenever a player interacts with an entity, or when a player cause entities to interact with eachother.
 - This only works for all clients connected to the WebSocket server.
 
 ### targetBlockHit *(TargetBlockHit)*
-Fires whenever you activate a target block.
+Fires whenever a player activates a target block.
 - This only works for all clients connected to the WebSocket server.
 
 # Purposes

@@ -844,6 +844,30 @@ class APIInstance {
         }
     }
 }
+// classes
+class BlockType {
+    aux = 0
+    id = ''
+    name = ''
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class ItemType {
+    aux = ''
+    id = ''
+    name = ''
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class EntityType {
+    id = string
+    name = string
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
 class AfterEventSignal {
     #internalName;
     #callbacks = new Set();
@@ -960,271 +984,240 @@ class AfterEventSignal {
         }
     }
 }
+class ItemStack {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class EntityMinimal {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class EntitySimple {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class Entity {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class Player {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+// interfaces
+class ChatSendAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerMoveAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerTransformAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerTeleportAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerDieAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerBounceAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class EntitySpawnAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class ItemCompleteUseAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class ItemUseAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerEquipItemAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerAcquireItemAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerDropItemAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerCraftItemAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerAcquireSmeltedItemAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerPlaceBlockAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerBreakBlockAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerKillEntityAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class PlayerInteractWithEntityAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
+class TargetBlockHitAfterEvent {
+    constructor() {
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
+    }
+}
 class ChatSendAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerMoveAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerTransformAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerTeleportAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerDieAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerBounceAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class EntitySpawnAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class ItemCompleteUseAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class ItemUseAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerEquipItemAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerAcquireItemAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerDropItemAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerCraftItemAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerAcquireSmeltedItemAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerPlaceBlockAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerBreakBlockAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerKillEntityAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class PlayerInteractWithEntityAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 class TargetBlockHitAfterEventSignal extends AfterEventSignal {
-    #internalName;
-    #callbacks;
-    #apiInstance;
-    #a;
     constructor() {
         super('')
-        throw `${tags.error} - ${color.whiteBright(`Class ${this.constructor.name} does not have a valid constructor.`)}`
+        throw `${tags.error} - ${color.whiteBright(`No constructor for class \'${this.constructor.name}\'.`)}`
     }
-    subscribe() {}
-    unsubscribe() {}
-    subscribeForOne() {}
-    unsubscribeForOne() {}
 }
 // enums
 const TravelMethod = {
@@ -1248,10 +1241,25 @@ const TeleportMethod = {
     Command: 3,
     Behavior: 4
 }
-const SpawnMethod = {
+const EntitySpawnMethod = {
     SpawnEgg: 1,
     Command: 2,
     MobSpawner: 4
+}
+const EntityInteractionType = {
+    Breed: 1,
+    Tame: 2,
+    Cure: 3,
+    Shear: 5,
+    Milk: 6,
+    Trade: 7,
+    Feed: 8,
+    Ignite: 9,
+    Dye: 10,
+    Name: 11,
+    LeashAttach: 12,
+    LeashDetach: 13,
+    PetCommand: 16
 }
 const ItemCompleteUseMethod = {
     Eat: 1,
@@ -1322,17 +1330,45 @@ const EntityDamageCause = {
 module.exports = {
     // classes
     APIInstance,
-    AfterEventSignal,
+    ItemType,
+    BlockType,
+    EntityType,
+    EntityMinimal,
+    EntitySimple,
+    Entity,
+    ItemStack,
+    Player,
     // enums
     TravelMethod,
     TeleportMethod,
-    SpawnMethod,
+    EntitySpawnMethod,
+    EntityInteractionType,
     ItemCompleteUseMethod,
     ItemUseMethod,
     ItemAcquisitionMethod,
     BlockPlacementMethod,
     BlockDestructionMethod,
     EntityDamageCause,
+    // events
+    ChatSendAfterEvent,
+    PlayerMoveAfterEvent,
+    PlayerTransformAfterEvent,
+    PlayerTeleportAfterEvent,
+    PlayerDieAfterEvent,
+    PlayerBounceAfterEvent,
+    EntitySpawnAfterEvent,
+    ItemCompleteUseAfterEvent,
+    ItemUseAfterEvent,
+    PlayerEquipItemAfterEvent,
+    PlayerAcquireItemAfterEvent,
+    PlayerDropItemAfterEvent,
+    PlayerCraftItemAfterEvent,
+    PlayerAcquireSmeltedItemAfterEvent,
+    PlayerPlaceBlockAfterEvent,
+    PlayerBreakBlockAfterEvent,
+    PlayerKillEntityAfterEvent,
+    PlayerInteractWithEntityAfterEvent,
+    TargetBlockHitAfterEvent,
     // event signals
     ChatSendAfterEventSignal,
     PlayerMoveAfterEventSignal,

@@ -94,203 +94,11 @@ declare module 'mcwss-api' {
         name: string
         type: number
     }
-    /** An in-game block. */
-    interface Block {
-        aux: number
-        id: string
-        namespace: string
-    }
-    /** An in-game item. */
-    interface Item {
-        aux: number
-        id: string
-        namespace: string
-    }
-    /** A 3D vector used to get where things are in the world. */
+    /** A 3D vector used to determine where things are in the world. */
     interface Vector3 {
         x: number
         y: number
         z: number
-    }
-    /** An in-game item, with alot more information. */
-    interface ItemAdvanced {
-        aux: number
-        enchantments: Enchantment[]
-        freeStackSize: number
-        id: string
-        maxStackSize: number
-        namespace: string
-        stackSize: 1
-    }
-    /** An in-game entity, with almost no information. */
-    interface EntitySingle {
-        type: number
-    }
-    /** An in-game entity. */
-    interface Entity {
-        color: number
-        id?: number
-        type: number
-        variant: number
-    }
-    /** An in-game entity with alot more information. */
-    interface EntityAdvanced {
-        color: number
-        dimension: number
-        id: number
-        position: Vector3
-        type: number
-        variant: number
-        yRot: number
-    }
-    /** A player, usually the person who triggered an event. */
-    interface Player {
-        color: string
-        dimension: number
-        id: number
-        name: string
-        position: Vector3
-        type: string
-        variant: number
-        yRot: number
-    }
-    interface ChatSendAfterEvent {
-        message: string
-        receiver: string
-        sender: string
-        type: string
-    }
-    interface PlayerMoveAfterEvent {
-        isUnderwater: boolean
-        metersTravelled: number
-        newBiome: number
-        player: Player
-        vehicle?: Entity
-        travelMethod: TravelMethod
-    }
-    interface PlayerTransformAfterEvent {
-        player: Player
-    }
-    interface PlayerTeleportAfterEvent {
-        cause: TeleportMethod,
-        itemType: number
-        metersTravelled: number
-        player: Player
-    }
-    interface PlayerDieAfterEvent {
-        cause: EntityDamageCause
-        inRaid: boolean
-        killer: Entity
-        player: Player
-    }
-    interface PlayerBounceAfterEvent {
-        block: Block
-        bounceHeight: number
-        player: Player
-    }
-    interface EntitySpawnAfterEvent {
-        mob: EntitySingle
-        player?: Player
-        spawnType: SpawnMethod
-    }
-    interface ItemCompleteUseAfterEvent {
-        count: number
-        item: Item
-        player: Player
-        useMethod: ItemCompleteUseMethod
-    }
-    interface ItemUseAfterEvent {
-        count: number
-        item: ItemAdvanced
-        method: ItemUseMethod
-        player: Player
-        slot: number
-    }
-    interface PlayerEquipItemAfterEvent {
-        item: ItemAdvanced
-        player: Player
-        slot: number
-    }
-    interface PlayerAcquireItemAfterEvent {
-        acquisitionMethodId: ItemAcquisitionMethod
-        count: number
-        item: Item
-        player: Player
-    }
-    interface PlayerDropItemAfterEvent {
-        count: number
-        item: Item
-        player: Player
-    }
-    interface PlayerAcquireSmeltedItemAfterEvent {
-        fuelSource: Item
-        item: ItemAdvanced
-        player: Player
-    }
-    interface PlayerCraftItemAfterEvent {
-        count: number
-        craftedAutomatically: boolean
-        endingTabId: number
-        hasCraftableFilterOn: boolean
-        item: ItemAdvanced
-        numberOfTabsChanged: number
-        player: Player
-        recipeBookShown: boolean
-        startingTabId: number
-        usedCraftingTable: boolean
-        usedSearchBar: boolean
-    }
-    interface PlayerPlaceBlockAfterEvent {
-        block: Block
-        count: number
-        placedUnderWater: boolean
-        placementMethod: BlockPlacementMethod
-        player: Player
-        tool: ItemAdvanced
-    }
-    interface PlayerBreakBlockAfterEvent {
-        block: Block
-        count: number
-        destructionMethod: BlockDestructionMethod
-        player: Player
-        tool: ItemAdvanced
-        variant: number
-    }
-    interface PlayerKillEntityAfterEvent {
-        armorBody: ItemAdvanced
-        armorFeet: ItemAdvanced
-        armorHead: ItemAdvanced
-        armorLegs: ItemAdvanced
-        armorTorso: ItemAdvanced
-        isMonster: boolean
-        killMethodType: EntityDamageCause
-        player: Player
-        playerIsHiddenFrom: boolean
-        victim: EntityAdvanced
-        weapon: ItemAdvanced
-    }
-    interface PlayerInteractWithEntityAfterEvent {
-        interactionType: number
-        mob: Entity
-        player: Player
-    }
-    interface TargetBlockHitAfterEvent {
-        player: Player
-        redstoneLevel: number
-    }
-    interface BlockType {
-        aux: number,
-        id: string,
-        name: string
-    }
-    interface ItemType {
-        aux: number,
-        id: string,
-        name: string
-    }
-    interface EntityType {
-        id: string,
-        name: string
     }
     interface APIOptions {
         /** 
@@ -341,10 +149,25 @@ declare module 'mcwss-api' {
         Command = 3,
         Behavior = 4
     }
-    enum SpawnMethod {
+    enum EntitySpawnMethod {
         SpawnEgg = 1,
         Command = 2,
         MobSpawner = 4
+    }
+    enum EntityInteractionType {
+        Breed = 1,
+        Tame = 2,
+        Cure = 3,
+        Shear = 5,
+        Milk = 6,
+        Trade = 7,
+        Feed = 8,
+        Ignite = 9,
+        Dye = 10,
+        Name = 11,
+        LeashAttach = 12,
+        LeashDetach = 13,
+        PetCommand = 16,
     }
     enum ItemCompleteUseMethod {
         Eat = 1,
@@ -414,6 +237,7 @@ declare module 'mcwss-api' {
     }
     // classes
     class APIInstance {
+        constructor(): APIInstance
         BlockTypes: {
             /** 
                 * Get all available block types for all clients connected to the WSS.
@@ -522,79 +346,315 @@ declare module 'mcwss-api' {
         /** Send raw string/buffer data to one client. */
         rawForOne(ws: WebSocket, raw: string | ArrayBufferLike): void
     }
+    /* The type of a block. */
+    class BlockType {
+        private protected constructor(): void
+        aux: number
+        id: string
+        name: string
+    }
+    /* The type of an item. */
+    class ItemType {
+        private protected constructor(): void
+        aux: number
+        id: string
+        name: string
+    }
+    /* The type of an entity. */
+    class EntityType {
+        private protected constructor(): void
+        id: string
+        name: string
+    }
+    /** An in-game item, but with less information. */
+    class ItemStackSimple {
+        private protected constructor(): void
+        aux: number
+        id: string
+        namespace: string
+    }
+    /** An in-game item. */
+    class ItemStack {
+        private protected constructor(): void
+        aux: number
+        enchantments: Enchantment[]
+        freeStackSize: number
+        id: string
+        maxStackSize: number
+        namespace: string
+        stackSize: number
+    }
+    /** An in-game entity, with almost no information. */
+    class EntityMinimal {
+        private protected constructor(): void
+        type: number
+    }
+    /** An in-game entity with less information. */
+    class EntitySimple {
+        private protected constructor(): void
+        color: number
+        id?: number
+        type: number
+        variant: number
+    }
+    /** An in-game entity. */
+    class Entity {
+        private protected constructor(): void
+        color: number
+        dimension: number
+        id: number
+        position: Vector3
+        type: number
+        variant: number
+        yRot: number
+    }
+    /** A player, usually the person who triggered an event. */
+    class Player {
+        private protected constructor(): void
+        color: string
+        dimension: number
+        id: number
+        name: string
+        position: Vector3
+        type: string
+        variant: number
+        yRot: number
+    }
+    class ChatSendAfterEvent {
+        private protected constructor(): void
+        message: string
+        receiver: string
+        sender: string
+        type: string
+    }
+    class PlayerMoveAfterEvent {
+        private protected constructor(): void
+        isUnderwater: boolean
+        metersTravelled: number
+        newBiome: number
+        player: Player
+        vehicle?: Entity
+        travelMethod: TravelMethod
+    }
+    class PlayerTransformAfterEvent {
+        private protected constructor(): void
+        player: Player
+    }
+    class PlayerTeleportAfterEvent {
+        private protected constructor(): void
+        cause: TeleportMethod
+        itemType: number
+        metersTravelled: number
+        player: Player
+    }
+    class PlayerDieAfterEvent {
+        private protected constructor(): void
+        cause: EntityDamageCause
+        inRaid: boolean
+        killer: EntitySimple
+        player: Player
+    }
+    class PlayerBounceAfterEvent {
+        private protected constructor(): void
+        block: Block
+        bounceHeight: number
+        player: Player
+    }
+    class EntitySpawnAfterEvent {
+        private protected constructor(): void
+        mob: EntityMinimal
+        player?: Player
+        spawnType: EntitySpawnMethod
+    }
+    class ItemCompleteUseAfterEvent {
+        private protected constructor(): void
+        count: number
+        item: ItemStackSimple
+        player: Player
+        useMethod: ItemCompleteUseMethod
+    }
+    class ItemUseAfterEvent {
+        private protected constructor(): void
+        count: number
+        item: ItemStack
+        method: ItemUseMethod
+        player: Player
+        slot: number
+    }
+    class PlayerEquipItemAfterEvent {
+        private protected constructor(): void
+        item: ItemStack
+        player: Player
+        slot: number
+    }
+    class PlayerAcquireItemAfterEvent {
+        private protected constructor(): void
+        acquisitionMethodId: ItemAcquisitionMethod
+        count: number
+        item: ItemSimple
+        player: Player
+    }
+    class PlayerDropItemAfterEvent {
+        private protected constructor(): void
+        count: number
+        item: ItemSimple
+        player: Player
+    }
+    class PlayerAcquireSmeltedItemAfterEvent {
+        private protected constructor(): void
+        fuelSource: ItemSimple
+        item: ItemSimple
+        player: Player
+    }
+    class PlayerCraftItemAfterEvent {
+        private protected constructor(): void
+        count: number
+        craftedAutomatically: boolean
+        endingTabId: number
+        hasCraftableFilterOn: boolean
+        item: ItemStack
+        numberOfTabsChanged: number
+        player: Player
+        recipeBookShown: boolean
+        startingTabId: number
+        usedCraftingTable: boolean
+        usedSearchBar: boolean
+    }
+    class PlayerPlaceBlockAfterEvent {
+        private protected constructor(): void
+        block: BlockType
+        count: number
+        placedUnderWater: boolean
+        placementMethod: BlockPlacementMethod
+        player: Player
+        tool: ItemStack
+    }
+    class PlayerBreakBlockAfterEvent {
+        private protected constructor(): void
+        block: BlockType
+        count: number
+        destructionMethod: BlockDestructionMethod
+        player: Player
+        tool: ItemStack
+        variant: number
+    }
+    class PlayerKillEntityAfterEvent {
+        private protected constructor(): void
+        armorBody: ItemStack
+        armorFeet: ItemStack
+        armorHead: ItemStack
+        armorLegs: ItemStack
+        armorTorso: ItemStack
+        isMonster: boolean
+        killMethodType: EntityDamageCause
+        player: Player
+        playerIsHiddenFrom: boolean
+        victim: Entity
+        weapon: ItemStack
+    }
+    class PlayerInteractWithEntityAfterEvent {
+        private protected constructor(): void
+        interactionType: EntityInteractionType
+        mob: EntitySimple
+        player: Player
+    }
+    class TargetBlockHitAfterEvent {
+        private protected constructor(): void
+        player: Player
+        redstoneLevel: number
+    }
     class ChatSendAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: ChatSendAfterEvent) => void): void
         unsubscribe(callback: (msg: ChatSendAfterEvent) => void): void
     }
     class PlayerMoveAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerMoveAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerMoveAfterEvent) => void): void
     }
     class PlayerTransformAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerTransformAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerTransformAfterEvent) => void): void
     }
     class PlayerTeleportAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerTeleportAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerTeleportAfterEvent) => void): void
     }
     class PlayerDieAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerDieAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerDieAfterEvent) => void): void
     }
     class PlayerBounceAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerBounceAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerBounceAfterEvent) => void): void
     }
     class EntitySpawnAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: EntitySpawnAfterEvent) => void): void
         unsubscribe(callback: (msg: EntitySpawnAfterEvent) => void): void
     }
     class ItemCompleteUseAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
         unsubscribe(callback: (msg: ItemCompleteUseAfterEvent) => void): void
     }
     class ItemUseAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: ItemUseAfterEvent) => void): void
         unsubscribe(callback: (msg: ItemUseAfterEvent) => void): void
     }
     class PlayerEquipItemAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerEquipItemAfterEvent) => void): void
     }
     class PlayerAcquireItemAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerAcquireItemAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerAcquireItemAfterEvent) => void): void
     }
     class PlayerDropItemAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerDropItemAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerDropItemAfterEvent) => void): void
     }
     class PlayerCraftItemAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerCraftItemAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerCraftItemAfterEvent) => void): void
     }
     class PlayerAcquireSmeltedItemAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerAcquireSmeltedItemAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerAcquireSmeltedItemAfterEvent) => void): void
     }
     class PlayerPlaceBlockAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerPlaceBlockAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerPlaceBlockAfterEvent) => void): void
     }
     class PlayerBreakBlockAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerBreakBlockAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerBreakBlockAfterEvent) => void): void
     }
     class PlayerKillEntityAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerKillEntityAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerKillEntityAfterEvent) => void): void
     }
     class PlayerInteractWithEntityAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
         unsubscribe(callback: (msg: PlayerInteractWithEntityAfterEvent) => void): void
     }
     class TargetBlockHitAfterEventSignal extends AfterEventSignal {
+        private protected constructor(): void
         subscribe(callback: (msg: TargetBlockHitAfterEvent) => void): void
         unsubscribe(callback: (msg: TargetBlockHitAfterEvent) => void): void
     }
@@ -603,7 +663,7 @@ declare module 'mcwss-api' {
         #callbacks: ((msg: any) => void)[]
         #apiInstance: APIInstance
         #a: (raw: string | ArrayBufferLike, cb: (msg: object, raw: string | ArrayBufferLike) => void, id: string) => void
-        constructor(internalName: EventType, apiInstance: APIInstance)
+        constructor(internalName: EventType, apiInstance: APIInstance): AfterEventSignal
         /** Subscribe to the event signal. */
         subscribe(callback: (msg: any) => void): void
         /** Unsubscribe from the event signal. */
@@ -611,14 +671,7 @@ declare module 'mcwss-api' {
     }
     export {
         // interfaces & stuff
-        EntitySingle,
-        Entity,
-        EntityAdvanced,
-        Item,
-        ItemAdvanced,
         Enchantment,
-        Block,
-        Player,
         EventType,
         MessagePurpose,
         // events
@@ -642,7 +695,6 @@ declare module 'mcwss-api' {
         PlayerInteractWithEntityAfterEvent,
         TargetBlockHitAfterEvent,
         // event signals
-        AfterEventSignal,
         ChatSendAfterEventSignal,
         PlayerMoveAfterEventSignal,
         PlayerTransformAfterEventSignal,
@@ -665,7 +717,8 @@ declare module 'mcwss-api' {
         // enums
         TravelMethod,
         TeleportMethod,
-        SpawnMethod,
+        EntitySpawnMethod,
+        EntityInteractionType,
         ItemCompleteUseMethod,
         ItemUseMethod,
         ItemAcquisitionMethod,
@@ -675,6 +728,15 @@ declare module 'mcwss-api' {
         // classes
         APIOptions,
         APIInstance,
-        Vector3
+        Vector3,
+        ItemType,
+        BlockType,
+        EntityType,
+        EntityMinimal,
+        EntitySimple,
+        Entity,
+        ItemStackSimple,
+        ItemStack,
+        Player,
     }
 }
